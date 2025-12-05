@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "661995395074",
+    "project_id": "classpal-1307f",
+    "storage_bucket": "classpal-1307f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:661995395074:android:6a9fce65118d46f5072f1b",
+        "android_client_info": {
+          "package_name": "com.example.classpall_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-PsJ800AEdS1kB-B2c7bSrLnzcoax004"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
