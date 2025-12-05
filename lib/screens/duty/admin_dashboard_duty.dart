@@ -12,6 +12,7 @@ class AdminDashboardDuty extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.blue.shade50,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: const Text("Phân công trực nhật"),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
