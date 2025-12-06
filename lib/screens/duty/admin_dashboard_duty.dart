@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../widgets/progress_card.dart';
-import '../../../widgets/leaderboard_card.dart';
-import '../../../widgets/duty_item.dart';
+import '../../widgets/duty/progress_card.dart';
+import '../../widgets/duty/leaderboard_card.dart';
+import '../../widgets/duty/duty_item.dart';
 import '../../../widgets/custom_bottom_bar.dart';
 
 class AdminDashboardDuty extends StatelessWidget {
@@ -62,6 +62,14 @@ class AdminDashboardDuty extends StatelessWidget {
               team: "1",
               deadline: "02/12/2025",
               status: "done",
+              onTap: () {},
+            ),
+
+            DutyItem(
+              title: "Lau bảng",
+              team: "1",
+              deadline: "02/12/2025",
+              status: "pending_approval",
               onTap: () {},
             ),
 

@@ -4,7 +4,7 @@ class DutyItem extends StatelessWidget {
   final String title;
   final String team;
   final String deadline;
-  final String status; // "done", "late", "inprogress"
+  final String status; // "done", "late", "inprogress","pending_approval"
   final VoidCallback onTap;
 
   const DutyItem({
@@ -22,6 +22,8 @@ class DutyItem extends StatelessWidget {
         return Colors.green.shade200;
       case "late":
         return Colors.red.shade200;
+      case "pending_approval":
+        return Colors.purple.shade200;
       default:
         return Colors.orange.shade200;
     }
@@ -33,6 +35,8 @@ class DutyItem extends StatelessWidget {
         return "Hoàn thành";
       case "late":
         return "Quá hạn";
+      case "pending_approval":
+        return "Chờ duyệt";
       default:
         return "Đang làm";
     }

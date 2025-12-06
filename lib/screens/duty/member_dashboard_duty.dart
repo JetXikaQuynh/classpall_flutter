@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:classpall_flutter/widgets/custom_bottom_bar.dart';
-import 'package:classpall_flutter/widgets/duty_item.dart';
-import 'package:classpall_flutter/widgets/leaderboard_card.dart';
+import 'package:classpall_flutter/widgets/duty/duty_item.dart';
+import 'package:classpall_flutter/widgets/duty/leaderboard_card.dart';
 
 class MemberDashboardDuty extends StatelessWidget {
   const MemberDashboardDuty({super.key});

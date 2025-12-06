@@ -1,3 +1,6 @@
+import 'package:classpall_flutter/screens/duty/create_duty_screen.dart';
+import 'package:classpall_flutter/screens/duty/duty_detail_screen.dart';
+import 'package:classpall_flutter/screens/duty/leaderboard_screen.dart';
 import 'package:classpall_flutter/screens/duty/member_dashboard_duty.dart';
 import 'package:flutter/material.dart';
 import 'screens/duty/admin_dashboard_duty.dart';
@@ -13,7 +16,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const AdminDashboardDuty(),
+      home: const LeaderboardScreen(),
     );
   }
 }

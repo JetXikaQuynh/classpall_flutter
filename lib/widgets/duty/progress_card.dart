@@ -64,7 +64,7 @@ class ProgressCard extends StatelessWidget {
 
   Widget _buildStatBox(int number, String label) {
     return Container(
-      width: 130,
+      width: 100,
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
         color: Colors.blue.shade300,
