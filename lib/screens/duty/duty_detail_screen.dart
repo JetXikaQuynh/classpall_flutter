@@ -7,9 +7,9 @@ class DutyDetailScreen extends StatelessWidget {
   const DutyDetailScreen({super.key});
 
   // Dữ liệu giả định
-  final String userRole = "leader"; // "member" | "leader" | "admin"
+  final String userRole = "admin"; // "member" | "leader" | "admin"
   final String dutyStatus =
-      "inprogress"; // done | pending_approval | inprogress | late
+      "pending_approval"; // done | pending_approval | inprogress | late
 
   final List<Map<String, dynamic>> _assignees = const [
     {
