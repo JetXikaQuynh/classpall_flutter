@@ -87,23 +87,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
             ),
             const SizedBox(height: 6),
-            TextField(
-              controller: phoneController,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: Colors.blue.shade400),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(width: 2, color: Colors.blue.shade600),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
-                ),
+
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white, // 👉 NỀN TRẮNG
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.blueAccent), // 👉 Viền xanh
               ),
-              keyboardType: TextInputType.phone,
+              child: TextField(
+                controller: phoneController,
+                decoration: const InputDecoration(
+                  border: InputBorder.none, // 👉 Bỏ border mặc định
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                ),
+                keyboardType: TextInputType.phone,
+              ),
             ),
 
             const SizedBox(height: 15),
@@ -117,23 +118,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
             ),
             const SizedBox(height: 6),
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: Colors.blue.shade400),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(width: 2, color: Colors.blue.shade600),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
-                ),
+
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white, // 👉 NỀN TRẮNG
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.blueAccent), // 👉 Viền xanh
               ),
-              keyboardType: TextInputType.emailAddress,
+              child: TextField(
+                controller: emailController,
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                ),
+                keyboardType: TextInputType.emailAddress,
+              ),
             ),
 
             const SizedBox(height: 30),
