@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:classpall_flutter/widgets/duty/duty_detail_card.dart';
 import 'package:classpall_flutter/widgets/duty/assignee_card.dart';
 import 'package:classpall_flutter/widgets/duty/rotation_history_item.dart';
+import 'confirm_duty_dialog.dart';
 
 class DutyDetailScreen extends StatelessWidget {
   const DutyDetailScreen({super.key});
@@ -68,7 +69,7 @@ class DutyDetailScreen extends StatelessWidget {
         ),
       ),
 
-      bottomNavigationBar: _buildBottomButton(userRole, dutyStatus),
+      bottomNavigationBar: _buildBottomButton(context, userRole, dutyStatus),
 
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
@@ -158,7 +159,7 @@ class DutyDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget? _buildBottomButton(String role, String status) {
+  Widget? _buildBottomButton(BuildContext context, String role, String status) {
     // MEMBER -> không có nút
     if (role == "member") return null;
 
@@ -199,12 +200,21 @@ class DutyDetailScreen extends StatelessWidget {
         child: SizedBox(
           height: 50,
           child: ElevatedButton(
-            onPressed: () {
-              print("Admin xác nhận hoàn thành");
-              // TODO:
-              // 1. Update duty_assignment -> status = 'done'
-              // 2. Add vào duty_history
-              // 3. Cộng điểm cho team
+            onPressed: () async {
+              final confirm = await ConfirmCompleteDialog.show(
+                context,
+                teamName: "Tổ 2",
+                bonusPoint: 10,
+              );
+
+              if (confirm == true) {
+                print(">>> ADMIN ĐÃ XÁC NHẬN HOÀN THÀNH");
+
+                // TODO:
+                // - Update Firestore status = done
+                // - Ghi vào duty_history
+                // - Cộng điểm cho tổ
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
