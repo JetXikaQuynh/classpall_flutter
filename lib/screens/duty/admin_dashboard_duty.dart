@@ -3,6 +3,7 @@ import '../../widgets/duty/progress_card.dart';
 import '../../widgets/duty/leaderboard_card.dart';
 import '../../widgets/duty/duty_item.dart';
 import '../../../widgets/custom_bottom_bar.dart';
+import '../../routes/app_routes.dart';
 
 class AdminDashboardDuty extends StatelessWidget {
   const AdminDashboardDuty({super.key});
@@ -19,12 +20,8 @@ class AdminDashboardDuty extends StatelessWidget {
           onPressed: () {},
         ),
       ),
-      bottomNavigationBar: CustomBottomBar(
-        currentIndex: 0,
-        onTap: (index) {
-          print("Tapped: $index");
-        },
-      ),
+      //tạm thời
+      bottomNavigationBar: const CustomBottomBar(currentIndex: 0),
 
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -46,7 +43,9 @@ class AdminDashboardDuty extends StatelessWidget {
                 {"rank": 2, "name": "3", "points": 80},
                 {"rank": 3, "name": "2", "points": 75},
               ],
-              onViewAll: () {},
+              onViewAll: () {
+                Navigator.pushNamed(context, AppRoutes.leaderboard);
+              },
             ),
 
             const SizedBox(height: 20),
@@ -62,7 +61,9 @@ class AdminDashboardDuty extends StatelessWidget {
               team: "1",
               deadline: "02/12/2025",
               status: "done",
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, AppRoutes.dutyDetail);
+              },
             ),
 
             DutyItem(
@@ -70,7 +71,9 @@ class AdminDashboardDuty extends StatelessWidget {
               team: "1",
               deadline: "02/12/2025",
               status: "pending_approval",
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, AppRoutes.dutyDetail);
+              },
             ),
 
             DutyItem(
@@ -78,7 +81,9 @@ class AdminDashboardDuty extends StatelessWidget {
               team: "2",
               deadline: "02/12/2025",
               status: "late",
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, AppRoutes.dutyDetail);
+              },
             ),
 
             DutyItem(
@@ -86,7 +91,9 @@ class AdminDashboardDuty extends StatelessWidget {
               team: "3",
               deadline: "02/12/2025",
               status: "inprogress",
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, AppRoutes.dutyDetail);
+              },
             ),
           ],
         ),

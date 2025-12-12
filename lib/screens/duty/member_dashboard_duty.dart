@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:classpall_flutter/widgets/custom_bottom_bar.dart';
 import 'package:classpall_flutter/widgets/duty/duty_item.dart';
 import 'package:classpall_flutter/widgets/duty/leaderboard_card.dart';
+import 'package:classpall_flutter/routes/app_routes.dart';
 
 class MemberDashboardDuty extends StatelessWidget {
   const MemberDashboardDuty({super.key});
@@ -28,7 +29,7 @@ class MemberDashboardDuty extends StatelessWidget {
         ),
       ),
 
-      bottomNavigationBar: CustomBottomBar(currentIndex: 0, onTap: (index) {}),
+      bottomNavigationBar: const CustomBottomBar(currentIndex: 1),
 
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -85,7 +86,7 @@ class MemberDashboardDuty extends StatelessWidget {
                 {"rank": 3, "name": "2", "points": 75},
               ],
               onViewAll: () {
-                print("View full leaderboard");
+                Navigator.pushNamed(context, AppRoutes.leaderboard);
               },
             ),
 
@@ -103,7 +104,9 @@ class MemberDashboardDuty extends StatelessWidget {
               team: "2",
               deadline: "02/12/2025",
               status: "inprogress",
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, AppRoutes.dutyDetail);
+              },
             ),
 
             DutyItem(
@@ -111,7 +114,9 @@ class MemberDashboardDuty extends StatelessWidget {
               team: "2",
               deadline: "02/12/2025",
               status: "late",
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, AppRoutes.dutyDetail);
+              },
             ),
           ],
         ),

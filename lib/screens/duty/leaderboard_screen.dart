@@ -50,8 +50,6 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
         ),
       ),
 
-      bottomNavigationBar: CustomBottomBar(currentIndex: 0, onTap: (index) {}),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

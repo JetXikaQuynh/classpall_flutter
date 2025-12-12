@@ -90,14 +90,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
             Container(
               decoration: BoxDecoration(
-                color: Colors.white, // 👉 NỀN TRẮNG
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.blueAccent), // 👉 Viền xanh
+                border: Border.all(color: Colors.blueAccent),
               ),
               child: TextField(
                 controller: phoneController,
                 decoration: const InputDecoration(
-                  border: InputBorder.none, // 👉 Bỏ border mặc định
+                  border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 10,
@@ -165,8 +165,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ],
         ),
       ),
-
-      bottomNavigationBar: CustomBottomBar(currentIndex: 0, onTap: (index) {}),
     );
   }
 }

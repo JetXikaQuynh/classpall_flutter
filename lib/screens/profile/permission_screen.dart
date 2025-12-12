@@ -293,8 +293,6 @@ class _PermissionScreenState extends State<PermissionScreen> {
           ),
         ],
       ),
-
-      bottomNavigationBar: CustomBottomBar(currentIndex: 0, onTap: (index) {}),
     );
   }
 }

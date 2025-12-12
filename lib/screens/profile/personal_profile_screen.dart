@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:classpall_flutter/widgets/custom_bottom_bar.dart';
+import 'package:classpall_flutter/routes/app_routes.dart';
 
 class PersonalProfileScreen extends StatelessWidget {
   const PersonalProfileScreen({super.key});
@@ -47,7 +48,7 @@ class PersonalProfileScreen extends StatelessWidget {
                   "Admin",
                   style: TextStyle(
                     fontSize: 16,
-                    color: Color(0xffF5A623), // màu vàng cam như Figma
+                    color: Color(0xffF5A623),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -105,13 +106,21 @@ class PersonalProfileScreen extends StatelessWidget {
             _buildMenuItem(
               icon: Icons.edit,
               text: "Sửa thông tin",
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, AppRoutes.editProfile);
+              },
             ),
-            _buildMenuItem(icon: Icons.group, text: "Phân quyền", onTap: () {}),
+            _buildMenuItem(
+              icon: Icons.group,
+              text: "Phân quyền",
+              onTap: () {
+                Navigator.pushNamed(context, AppRoutes.permission);
+              },
+            ),
             _buildMenuItem(
               icon: Icons.lock,
               text: "Đổi mật khẩu",
-              onTap: () {},
+              onTap: () {}, //
             ),
 
             const SizedBox(height: 30),
@@ -144,8 +153,8 @@ class PersonalProfileScreen extends StatelessWidget {
         ),
       ),
 
-      /// Bottom Navigation
-      bottomNavigationBar: CustomBottomBar(currentIndex: 0, onTap: (index) {}),
+      /// Bottom Navigation, index = 2 =>iconbutton pro5
+      bottomNavigationBar: const CustomBottomBar(currentIndex: 2),
     );
   }
 
