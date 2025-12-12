@@ -1,21 +1,12 @@
 import 'package:flutter/material.dart';
+// import 'package:firebase_core/firebase_core.dart'; // Bỏ comment khi dùng Firebase sau
+import 'app.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  // Nếu sau này dùng Firebase thì bỏ comment
+  // await Firebase.initializeApp();
 
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyApp(),
-    );
-  }
+  runApp(const ClassPalApp());
 }
