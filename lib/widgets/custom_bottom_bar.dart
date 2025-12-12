@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
+import '../routes/app_routes.dart';
 
 class CustomBottomBar extends StatelessWidget {
   final int currentIndex;
-  final Function(int) onTap;
 
-  const CustomBottomBar({
-    super.key,
-    required this.currentIndex,
-    required this.onTap,
-  });
+  const CustomBottomBar({super.key, required this.currentIndex});
 
   @override
   Widget build(BuildContext context) {
@@ -23,24 +19,51 @@ class CustomBottomBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildIcon(Icons.home_outlined, 0),
-          _buildIcon(Icons.notifications_outlined, 1, badge: 2),
-          _buildIcon(Icons.person_outline, 2),
+          _buildIcon(
+            context,
+            Icons.home_outlined,
+            0,
+            AppRoutes
+                .adminDashboardDuty, //tạm thời, sau thay bằng màn home dashboard
+          ),
+          _buildIcon(
+            context,
+            Icons.notifications_outlined,
+            1,
+            AppRoutes
+                .memberDashboardDuty, //sau thay bằng màn thông báo vì chưa có UI màn này
+          ),
+          _buildIcon(
+            context,
+            Icons.person_outline,
+            2,
+            AppRoutes.personalProfile,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildIcon(IconData icon, int index, {int badge = 0}) {
+  Widget _buildIcon(
+    BuildContext context,
+    IconData icon,
+    int index,
+    String route, {
+    int badge = 0,
+  }) {
     return GestureDetector(
-      onTap: () => onTap(index),
+      onTap: () {
+        if (currentIndex != index) {
+          Navigator.pushReplacementNamed(context, route);
+        }
+      },
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           Icon(
             icon,
             size: 32,
-            color: currentIndex == index ? Colors.blue : Colors.blue,
+            color: currentIndex == index ? Colors.blue : Colors.grey,
           ),
           if (badge > 0)
             Positioned(

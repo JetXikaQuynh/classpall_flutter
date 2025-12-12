@@ -1,21 +1,38 @@
+// import 'package:classpall_flutter/screens/duty/create_duty_screen.dart';
+// import 'package:classpall_flutter/screens/duty/duty_detail_screen.dart';
+// import 'package:classpall_flutter/screens/duty/leaderboard_screen.dart';
+// import 'package:classpall_flutter/screens/duty/member_dashboard_duty.dart';
+// import 'package:classpall_flutter/screens/profile/personal_profile_screen.dart';
+// import 'package:flutter/material.dart';
+// import 'screens/duty/admin_dashboard_duty.dart';
+// import 'screens/profile/edit_profile_screen.dart';
+// import 'screens/profile/permission_screen.dart';
+
+// void main() {
+//   runApp(const MyApp());
+// }
+
+// class MyApp extends StatelessWidget {
+//   const MyApp({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       home: const PersonalProfileScreen(),
+//     );
+//   }
+// }
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'app.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  // Khởi tạo Firebase
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyApp(),
-    );
-  }
+  runApp(const App()); // chạy app.dart
 }
