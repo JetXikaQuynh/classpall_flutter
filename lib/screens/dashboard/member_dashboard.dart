@@ -29,37 +29,79 @@ class _MemberDashboardState extends State<MemberDashboard> {
         title: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Class Pal', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black87)),
+            Text(
+              'Class Pal',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
             SizedBox(height: 4),
-            Text('Xin chào, Sinh viên 5', style: TextStyle(fontSize: 15, color: Colors.black54)),
+            Text(
+              'Xin chào, Sinh viên 5',
+              style: TextStyle(fontSize: 15, color: Colors.black54),
+            ),
           ],
         ),
       ),
-      body: SingleChildScrollView( // THÊM SCROLL
+      body: SingleChildScrollView(
+        // THÊM SCROLL
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Chức năng', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const Text(
+              'Chức năng',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 20),
-            _buildCard(Icons.calendar_today_rounded, Colors.redAccent, 'Đăng ký Sự kiện', 'Xem và đăng ký sự kiện lớp', () {}),
+            _buildCard(
+              Icons.calendar_today_rounded,
+              Colors.redAccent,
+              'Đăng ký Sự kiện',
+              'Xem và đăng ký sự kiện lớp',
+              () {},
+            ),
             const SizedBox(height: 16),
-            _buildCard(Icons.assignment_turned_in_rounded, Colors.orangeAccent, 'Nhiệm vụ của tôi', 'Xem nhiệm vụ được giao', () {}),
+            _buildCard(
+              Icons.assignment_turned_in_rounded,
+              Colors.orangeAccent,
+              'Nhiệm vụ của tôi',
+              'Xem nhiệm vụ được giao',
+              () {},
+            ),
             const SizedBox(height: 16),
-            _buildCard(Icons.inventory_rounded, Colors.brown, 'Mượn Tài sản', 'Mượn và trả tài sản lớp', () {}),
+            _buildCard(
+              Icons.inventory_rounded,
+              Colors.brown,
+              'Mượn Tài sản',
+              'Mượn và trả tài sản lớp',
+              () {},
+            ),
             const SizedBox(height: 16),
-            _buildCard(Icons.account_balance_wallet_rounded, Colors.green, 'Quỹ lớp', 'Xem thông tin quỹ lớp', () {}),
+            _buildCard(
+              Icons.account_balance_wallet_rounded,
+              Colors.green,
+              'Quỹ lớp',
+              'Xem thông tin quỹ lớp',
+              () {},
+            ),
             const SizedBox(height: 100), // thêm khoảng trống để scroll đẹp
           ],
         ),
       ),
-      bottomNavigationBar: CustomBottomBar( // DÙNG BOTTOM BAR CỦA BẠN
-        currentIndex: _currentIndex,
-      ),
+      bottomNavigationBar: CustomBottomBar(currentIndex: _currentIndex),
     );
   }
 
-  Widget _buildCard(IconData icon, Color color, String title, String subtitle, VoidCallback onTap) {
+  Widget _buildCard(
+    IconData icon,
+    Color color,
+    String title,
+    String subtitle,
+    VoidCallback onTap,
+  ) {
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -72,7 +114,10 @@ class _MemberDashboardState extends State<MemberDashboard> {
             children: [
               Container(
                 padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(color: color.withOpacity(0.15), borderRadius: BorderRadius.circular(12)),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: Icon(icon, size: 36, color: color),
               ),
               const SizedBox(width: 20),
@@ -80,9 +125,21 @@ class _MemberDashboardState extends State<MemberDashboard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 6),
-                    Text(subtitle, style: const TextStyle(fontSize: 14, color: Colors.black54)),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                      ),
+                    ),
                   ],
                 ),
               ),

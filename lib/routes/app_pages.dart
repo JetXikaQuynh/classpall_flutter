@@ -27,11 +27,6 @@ import 'package:classpall_flutter/screens/profile/personal_profile_screen.dart';
 import 'package:classpall_flutter/screens/profile/edit_profile_screen.dart';
 import 'package:classpall_flutter/screens/profile/permission_screen.dart';
 
-// Dialogs
-import 'package:classpall_flutter/screens/duty/confirm_duty_dialog.dart';
-import 'package:classpall_flutter/screens/profile/add_team_dialog.dart';
-import 'package:classpall_flutter/screens/profile/delete_team_dialog.dart';
-
 import 'app_routes.dart';
 
 class AppPages {
