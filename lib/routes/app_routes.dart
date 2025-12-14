@@ -13,8 +13,14 @@ class AppRoutes {
   static const editProfile = '/edit-profile';
   static const permission = '/permission';
 
-  // Dialogs (không dùng pushNamed, nhưng vẫn khai báo nếu cần)
+  // Dialogs
   static const addTeamDialog = '/add-team-dialog';
   static const deleteTeamDialog = '/delete-team-dialog';
   static const confirmDutyDialog = '/confirm-duty-dialog';
+
+  // Auth + Dashboard
+  static const splash = '/splash';
+  static const login = '/login';
+  static const adminDashboard = '/admin-dashboard';
+  static const memberDashboard = '/member-dashboard';
 }
