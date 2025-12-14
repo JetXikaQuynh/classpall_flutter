@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:classpall_flutter/routes/app_routes.dart'; // THÊM IMPORT NÀY
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -20,9 +21,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
     // 2 tài khoản test sẵn
     if (email == 'admin@classpal.com' && password == 'admin123') {
-      Navigator.pushReplacementNamed(context, '/admin_dashboard');
+      Navigator.pushReplacementNamed(context, AppRoutes.adminDashboard); // DÙNG CONSTANT, TÊN NHẤT QUÁN
     } else if (email == 'member@classpal.com' && password == 'member123') {
-      Navigator.pushReplacementNamed(context, '/member_dashboard');
+      Navigator.pushReplacementNamed(context, AppRoutes.memberDashboard); // DÙNG CONSTANT, TÊN NHẤT QUÁN
     } else {
       setState(() {
         _errorMessage = 'Sai email hoặc mật khẩu. Hãy thử tài khoản test!';
