@@ -5,6 +5,16 @@ import 'package:classpall_flutter/screens/splash/splash_screen.dart';
 import 'package:classpall_flutter/screens/auth/login_page.dart';
 import 'package:classpall_flutter/screens/dashboard/admin_dashboard.dart';
 import 'package:classpall_flutter/screens/dashboard/member_dashboard.dart';
+
+// Event - Admin
+import 'package:classpall_flutter/screens/events/admin/event_list_page.dart';
+import 'package:classpall_flutter/screens/events/admin/event_detail_page.dart';
+import 'package:classpall_flutter/screens/events/admin/event_create_page.dart';
+
+// Event - Member
+import 'package:classpall_flutter/screens/events/member/member_event_list_page.dart';
+import 'package:classpall_flutter/screens/events/member/member_event_detail_page.dart';
+
 // Duty screens
 import 'package:classpall_flutter/screens/duty/admin_dashboard_duty.dart';
 import 'package:classpall_flutter/screens/duty/member_dashboard_duty.dart';
@@ -40,5 +50,15 @@ class AppPages {
     AppRoutes.personalProfile: (_) => const PersonalProfileScreen(),
     AppRoutes.editProfile: (_) => const EditProfileScreen(),
     AppRoutes.permission: (_) => const PermissionScreen(),
+
+    // ================= EVENT MODULE =================
+    // Admin
+    AppRoutes.adminEventList: (_) => const EventListPage(),
+    AppRoutes.adminEventDetail: (_) => const EventDetailPage(),
+    AppRoutes.adminEventCreate: (_) => const EventCreatePage(),
+
+    // Member
+    AppRoutes.memberEventList: (_) => const MemberEventListPage(),
+    AppRoutes.memberEventDetail: (_) => const MemberEventDetailPage(),
   };
 }
