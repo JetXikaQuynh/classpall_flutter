@@ -23,4 +23,17 @@ class AppRoutes {
   static const login = '/login';
   static const adminDashboard = '/admin-dashboard';
   static const memberDashboard = '/member-dashboard';
+
+ // ================= EVENT MODULE =================
+
+  // Admin
+  static const adminEventList = '/admin-event-list';
+  static const adminEventDetail = '/admin-event-detail';
+  static const adminEventCreate = '/admin-event-create';
+
+  // Member
+  static const memberEventList = '/member-event-list';
+  static const memberEventDetail = '/member-event-detail';
+
+
 }

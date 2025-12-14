@@ -55,7 +55,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       ),
       bottomNavigationBar: CustomBottomBar( 
         currentIndex: _currentIndex,
-        onTap: _onBottomTap,
+  
       ),
     );
   }

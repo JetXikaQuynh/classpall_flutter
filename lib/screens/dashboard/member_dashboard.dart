@@ -55,7 +55,6 @@ class _MemberDashboardState extends State<MemberDashboard> {
       ),
       bottomNavigationBar: CustomBottomBar( // DÙNG BOTTOM BAR CỦA BẠN
         currentIndex: _currentIndex,
-        onTap: _onBottomTap,
       ),
     );
   }
