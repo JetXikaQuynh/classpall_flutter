@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:classpall_flutter/widgets/custom_bottom_bar.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -121,9 +120,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
             Container(
               decoration: BoxDecoration(
-                color: Colors.white, // 👉 NỀN TRẮNG
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.blueAccent), // 👉 Viền xanh
+                border: Border.all(color: Colors.blueAccent),
               ),
               child: TextField(
                 controller: emailController,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:classpall_flutter/widgets/custom_bottom_bar.dart';
 import 'package:classpall_flutter/widgets/profile/user_item.dart';
 import 'add_team_dialog.dart';
 import 'delete_team_dialog.dart';
