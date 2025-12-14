@@ -1,14 +1,14 @@
 class AppRoutes {
   static const home = '/';
 
-  // Duty module (giữ nguyên của team)
+  // Duty module
   static const adminDashboardDuty = '/admin-dashboard-duty';
   static const memberDashboardDuty = '/member-dashboard-duty';
   static const createDuty = '/create-duty';
   static const dutyDetail = '/duty-detail';
   static const leaderboard = '/leaderboard';
 
-  // Profile module (giữ nguyên)
+  // Profile module
   static const personalProfile = '/personal-profile';
   static const editProfile = '/edit-profile';
   static const permission = '/permission';
@@ -18,7 +18,7 @@ class AppRoutes {
   static const deleteTeamDialog = '/delete-team-dialog';
   static const confirmDutyDialog = '/confirm-duty-dialog';
 
-  // === PHẦN CỦA BẠN: Auth + Dashboard ===
+  // Auth + Dashboard
   static const splash = '/splash';
   static const login = '/login';
   static const adminDashboard = '/admin-dashboard';
