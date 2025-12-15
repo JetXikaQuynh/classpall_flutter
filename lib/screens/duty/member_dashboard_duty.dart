@@ -17,7 +17,9 @@ class MemberDashboardDuty extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
         title: const Text(
           "Phân công trực nhật",
@@ -29,7 +31,7 @@ class MemberDashboardDuty extends StatelessWidget {
         ),
       ),
 
-      bottomNavigationBar: const CustomBottomBar(currentIndex: 1),
+      bottomNavigationBar: const CustomBottomBar(currentIndex: 0),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

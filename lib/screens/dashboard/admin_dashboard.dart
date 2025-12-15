@@ -10,14 +10,7 @@ class AdminDashboard extends StatefulWidget {
 }
 
 class _AdminDashboardState extends State<AdminDashboard> {
-  int _currentIndex = 0; // để quản lý index cho bottom bar
-
-  void _onBottomTap(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-    // Sau này xử lý navigation ở đây (ví dụ chuyển sang Notification, Profile)
-  }
+  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +64,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               'Phân công trực nhật',
               'Quản lý trực nhật và nhiệm vụ',
               () {
-                Navigator.pushNamed(context, AppRoutes.memberDashboardDuty);
+                Navigator.pushNamed(context, AppRoutes.adminDashboardDuty);
               },
             ),
             const SizedBox(height: 16),
