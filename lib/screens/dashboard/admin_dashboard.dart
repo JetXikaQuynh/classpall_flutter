@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:classpall_flutter/widgets/custom_bottom_bar.dart'; // import bottom bar
+import 'package:classpall_flutter/routes/app_routes.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -69,7 +70,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
               Colors.orangeAccent,
               'Phân công trực nhật',
               'Quản lý trực nhật và nhiệm vụ',
-              () {},
+              () {
+                Navigator.pushNamed(context, AppRoutes.memberDashboardDuty);
+              },
             ),
             const SizedBox(height: 16),
             _buildCard(

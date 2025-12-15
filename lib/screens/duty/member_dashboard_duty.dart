@@ -30,7 +30,6 @@ class MemberDashboardDuty extends StatelessWidget {
       ),
 
       bottomNavigationBar: const CustomBottomBar(currentIndex: 1),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

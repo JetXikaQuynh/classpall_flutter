@@ -13,10 +13,8 @@ class AppRoutes {
   static const editProfile = '/edit-profile';
   static const permission = '/permission';
 
-  // Dialogs
-  static const addTeamDialog = '/add-team-dialog';
-  static const deleteTeamDialog = '/delete-team-dialog';
-  static const confirmDutyDialog = '/confirm-duty-dialog';
+  //Notification
+  static const notification = '/notification';
 
   // Auth + Dashboard
   static const splash = '/splash';
@@ -24,7 +22,7 @@ class AppRoutes {
   static const adminDashboard = '/admin-dashboard';
   static const memberDashboard = '/member-dashboard';
 
- // ================= EVENT MODULE =================
+  // ================= EVENT MODULE =================
 
   // Admin
   static const adminEventList = '/admin-event-list';
@@ -34,6 +32,4 @@ class AppRoutes {
   // Member
   static const memberEventList = '/member-event-list';
   static const memberEventDetail = '/member-event-detail';
-
-
 }

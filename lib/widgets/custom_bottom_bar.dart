@@ -24,14 +24,13 @@ class CustomBottomBar extends StatelessWidget {
             Icons.home_outlined,
             0,
             AppRoutes
-                .adminDashboardDuty, //tạm thời, sau thay bằng màn home dashboard
+                .adminDashboard, //tạm thời, sau thay bằng màn home dashboard
           ),
           _buildIcon(
             context,
             Icons.notifications_outlined,
             1,
-            AppRoutes
-                .memberDashboardDuty, //sau thay bằng màn thông báo vì chưa có UI màn này
+            AppRoutes.notification,
           ),
           _buildIcon(
             context,
