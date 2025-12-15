@@ -50,12 +50,15 @@ class NotificationsScreen extends StatelessWidget {
             /// -------- NOTIFICATION LIST --------
             _NotificationCard(
               icon: Icons.calendar_today,
-              iconBg: Colors.blue.shade100,
+              iconBg: Colors.blue.shade50,
               title: "Nhắc nhở: Tuần này đến lượt tổ bạn trực nhật",
               content: "Nhiệm vụ của tổ bạn là Lau bảng.",
               time: "5 giờ trước",
               actionText: "Xem chi tiết →",
               isUnread: true,
+              onTap: () {
+                Navigator.pushNamed(context, AppRoutes.dutyDetail);
+              },
             ),
 
             _NotificationCard(
@@ -67,6 +70,7 @@ class NotificationsScreen extends StatelessWidget {
               time: "2 giờ trước",
               actionText: "Xem sự kiện →",
               isUnread: true,
+              onTap: () {},
             ),
 
             _NotificationCard(
@@ -78,6 +82,7 @@ class NotificationsScreen extends StatelessWidget {
               time: "2 ngày trước",
               actionText: "Xem chi tiết →",
               isUnread: false,
+              onTap: () {},
             ),
           ],
         ),
@@ -96,6 +101,7 @@ class _NotificationCard extends StatelessWidget {
   final String time;
   final String actionText;
   final bool isUnread;
+  final VoidCallback? onTap;
 
   const _NotificationCard({
     required this.icon,
@@ -105,80 +111,85 @@ class _NotificationCard extends StatelessWidget {
     required this.time,
     required this.actionText,
     required this.isUnread,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: isUnread
-            ? Border.all(color: Colors.blue, width: 1.5)
-            : Border.all(color: Colors.transparent),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 6),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          /// ICON
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: iconBg,
-              borderRadius: BorderRadius.circular(10),
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: onTap, // ✅ bắt sự kiện tap
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: isUnread
+              ? Border.all(color: Colors.blue, width: 1.5)
+              : Border.all(color: Colors.transparent),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 6),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            /// ICON
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: iconBg,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: Colors.blue),
             ),
-            child: Icon(icon, color: Colors.blue),
-          ),
 
-          const SizedBox(width: 12),
+            const SizedBox(width: 12),
 
-          /// CONTENT
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
+            /// CONTENT
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  content,
-                  style: const TextStyle(fontSize: 13, color: Colors.black87),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      time,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.black45,
+                  const SizedBox(height: 4),
+                  Text(
+                    content,
+                    style: const TextStyle(fontSize: 13, color: Colors.black87),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        time,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.black45,
+                        ),
                       ),
-                    ),
-                    Text(
-                      actionText,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.blue,
-                        fontWeight: FontWeight.w600,
+                      Text(
+                        actionText,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.blue,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -17,7 +17,10 @@ class AdminDashboardDuty extends StatelessWidget {
         title: const Text("Phân công trực nhật"),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () {},
+          onPressed: () {
+            //Dùng Navigator.pop để quay lại màn hình AdminDashboard
+            Navigator.pop(context);
+          },
         ),
       ),
       //tạm thời
