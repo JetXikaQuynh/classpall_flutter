@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:classpall_flutter/widgets/custom_bottom_bar.dart'; // import bottom bar
+import 'package:classpall_flutter/widgets/custom_bottom_bar.dart';
+import 'package:classpall_flutter/routes/app_routes.dart';
 
 class MemberDashboard extends StatefulWidget {
   const MemberDashboard({super.key});
@@ -69,7 +70,9 @@ class _MemberDashboardState extends State<MemberDashboard> {
               Colors.orangeAccent,
               'Nhiệm vụ của tôi',
               'Xem nhiệm vụ được giao',
-              () {},
+              () {
+                Navigator.pushNamed(context, AppRoutes.memberDashboardDuty);
+              },
             ),
             const SizedBox(height: 16),
             _buildCard(

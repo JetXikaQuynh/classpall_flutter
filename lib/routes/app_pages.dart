@@ -27,11 +27,13 @@ import 'package:classpall_flutter/screens/profile/personal_profile_screen.dart';
 import 'package:classpall_flutter/screens/profile/edit_profile_screen.dart';
 import 'package:classpall_flutter/screens/profile/permission_screen.dart';
 
+//Notification
+import 'package:classpall_flutter/screens/notifications.dart';
+
 import 'app_routes.dart';
 
 class AppPages {
   static final Map<String, WidgetBuilder> routes = {
-    // Home (tạm thời dùng splash, sau merge team sẽ có home thật)
     AppRoutes.home: (_) => const SplashScreen(),
 
     //
@@ -60,5 +62,8 @@ class AppPages {
     // Member
     AppRoutes.memberEventList: (_) => const MemberEventListPage(),
     AppRoutes.memberEventDetail: (_) => const MemberEventDetailPage(),
+
+    //Notification
+    AppRoutes.notification: (_) => const NotificationsScreen(),
   };
 }
