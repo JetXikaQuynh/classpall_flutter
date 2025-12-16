@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../routes/app_routes.dart';
+import '../services/auth_service.dart';
 
 class CustomBottomBar extends StatelessWidget {
   final int currentIndex;
@@ -8,6 +9,14 @@ class CustomBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Tự động lấy Role từ AuthService
+    final bool userIsAdmin = AuthService.isAdmin;
+
+    // Xác định route Home dựa trên Role
+    final String homeRoute = userIsAdmin
+        ? AppRoutes.adminDashboard
+        : AppRoutes.memberDashboard;
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
@@ -19,13 +28,7 @@ class CustomBottomBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildIcon(
-            context,
-            Icons.home_outlined,
-            0,
-            AppRoutes
-                .adminDashboard, //tạm thời, sau thay bằng màn home dashboard
-          ),
+          _buildIcon(context, Icons.home_outlined, 0, homeRoute),
           _buildIcon(
             context,
             Icons.notifications_outlined,
