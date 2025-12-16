@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:classpall_flutter/widgets/custom_bottom_bar.dart';
 import 'package:classpall_flutter/routes/app_routes.dart';
+import 'logout_confirm_dialog.dart';
 
 class PersonalProfileScreen extends StatelessWidget {
   const PersonalProfileScreen({super.key});
@@ -117,11 +118,6 @@ class PersonalProfileScreen extends StatelessWidget {
                 Navigator.pushNamed(context, AppRoutes.permission);
               },
             ),
-            _buildMenuItem(
-              icon: Icons.lock,
-              text: "Đổi mật khẩu",
-              onTap: () {}, //
-            ),
 
             const SizedBox(height: 30),
 
@@ -129,7 +125,13 @@ class PersonalProfileScreen extends StatelessWidget {
             SizedBox(
               width: 250,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (_) => const LogoutConfirmDialog(),
+                  );
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromARGB(255, 253, 39, 39),
                   shape: RoundedRectangleBorder(

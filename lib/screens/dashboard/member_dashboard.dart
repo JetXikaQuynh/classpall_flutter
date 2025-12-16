@@ -55,7 +55,9 @@ class _MemberDashboardState extends State<MemberDashboard> {
               Colors.redAccent,
               'Đăng ký Sự kiện',
               'Xem và đăng ký sự kiện lớp',
-              () {},
+              () {
+                Navigator.pushNamed(context, AppRoutes.memberEventList);
+              },
             ),
             const SizedBox(height: 16),
             _buildCard(
