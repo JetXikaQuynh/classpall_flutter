@@ -12,12 +12,6 @@ class MemberDashboard extends StatefulWidget {
 class _MemberDashboardState extends State<MemberDashboard> {
   int _currentIndex = 0;
 
-  void _onBottomTap(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-    // Sau này xử lý navigation
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +56,9 @@ class _MemberDashboardState extends State<MemberDashboard> {
               Colors.redAccent,
               'Đăng ký Sự kiện',
               'Xem và đăng ký sự kiện lớp',
-              () {},
+              () {
+                Navigator.pushNamed(context, AppRoutes.memberEventList);
+              },
             ),
             const SizedBox(height: 16),
             _buildCard(

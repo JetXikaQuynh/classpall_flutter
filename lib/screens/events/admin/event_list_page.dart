@@ -1,10 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:classpall_flutter/widgets/custom_bottom_bar.dart';
-import 'package:classpall_flutter/widgets/event_card_admin.dart';
+import 'package:classpall_flutter/widgets/event/event_card_admin.dart';
+import 'package:classpall_flutter/routes/app_routes.dart';
 
+
+
+import 'event_create_form.dart';
 
 class EventListPage extends StatelessWidget {
   const EventListPage({super.key});
+
+  void _openCreateEvent(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => const EventCreateForm(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,12 +46,13 @@ class EventListPage extends StatelessWidget {
 
             const SizedBox(height: 12),
 
+            // ===== BUTTON TẠO SỰ KIỆN =====
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () => _openCreateEvent(context),
                   icon: const Icon(Icons.add),
                   label: const Text('Tạo sự kiện mới'),
                 ),
@@ -44,7 +61,7 @@ class EventListPage extends StatelessWidget {
 
             const SizedBox(height: 12),
 
-            /// EVENT LIST
+            /// ===== EVENT LIST =====
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -63,7 +80,7 @@ class EventListPage extends StatelessWidget {
                     onTap: () {
                       Navigator.pushNamed(
                         context,
-                        '/event-detail-admin',
+                          AppRoutes.adminEventDetail,
                       );
                     },
                   );
