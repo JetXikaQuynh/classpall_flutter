@@ -91,7 +91,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
           ],
         ),
       ),
-      bottomNavigationBar: CustomBottomBar(currentIndex: _currentIndex),
+      // bottomNavigationBar: CustomBottomBar(currentIndex: _currentIndex),
+      bottomNavigationBar: const CustomBottomBar(currentIndex: 0),
     );
   }
 

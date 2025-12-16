@@ -12,7 +12,6 @@ class MemberDashboard extends StatefulWidget {
 class _MemberDashboardState extends State<MemberDashboard> {
   int _currentIndex = 0;
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,7 +89,8 @@ class _MemberDashboardState extends State<MemberDashboard> {
           ],
         ),
       ),
-      bottomNavigationBar: CustomBottomBar(currentIndex: _currentIndex),
+      // bottomNavigationBar: CustomBottomBar(currentIndex: _currentIndex),
+      bottomNavigationBar: const CustomBottomBar(currentIndex: 0),
     );
   }
 
