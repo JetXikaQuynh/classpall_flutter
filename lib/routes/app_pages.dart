@@ -9,11 +9,9 @@ import 'package:classpall_flutter/screens/dashboard/member_dashboard.dart';
 // Event - Admin
 import 'package:classpall_flutter/screens/events/admin/event_list_page.dart';
 import 'package:classpall_flutter/screens/events/admin/event_detail_page.dart';
-import 'package:classpall_flutter/screens/events/admin/event_create_page.dart';
 
 // Event - Member
 import 'package:classpall_flutter/screens/events/member/member_event_list_page.dart';
-import 'package:classpall_flutter/screens/events/member/member_event_detail_page.dart';
 
 // Duty screens
 import 'package:classpall_flutter/screens/duty/admin_dashboard_duty.dart';
@@ -57,11 +55,10 @@ class AppPages {
     // Admin
     AppRoutes.adminEventList: (_) => const EventListPage(),
     AppRoutes.adminEventDetail: (_) => const EventDetailPage(),
-    AppRoutes.adminEventCreate: (_) => const EventCreatePage(),
 
     // Member
     AppRoutes.memberEventList: (_) => const MemberEventListPage(),
-    AppRoutes.memberEventDetail: (_) => const MemberEventDetailPage(),
+
 
     //Notification
     AppRoutes.notification: (_) => const NotificationsScreen(),
