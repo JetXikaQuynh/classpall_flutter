@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class ConfirmBorrowDialog extends StatelessWidget {
+class ConfirmReturnDialog extends StatelessWidget {
   final String assetName;
 
-  const ConfirmBorrowDialog({
+  const ConfirmReturnDialog({
     super.key,
     required this.assetName,
   });
@@ -11,7 +11,7 @@ class ConfirmBorrowDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Xác nhận mượn $assetName'),
+      title: Text('Xác nhận trả $assetName'),
       actions: [
         ElevatedButton(
           onPressed: () => Navigator.pop(context, true),
@@ -25,3 +25,4 @@ class ConfirmBorrowDialog extends StatelessWidget {
     );
   }
 }
+
