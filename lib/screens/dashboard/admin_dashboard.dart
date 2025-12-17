@@ -1,3 +1,4 @@
+import 'package:classpall_flutter/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:classpall_flutter/widgets/custom_bottom_bar.dart'; 
 import 'package:classpall_flutter/routes/app_routes.dart';
@@ -85,7 +86,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
               Colors.green,
               'Quản lý Quỹ lớp',
               'Quản lý thu chi tài chính',
-              () {},
+              () {
+                Navigator.pushNamed(context, AppRoutes.fund);
+              },
             ),
             const SizedBox(
               height: 100,
