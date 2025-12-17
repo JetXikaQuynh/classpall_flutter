@@ -56,7 +56,7 @@ class CustomBottomBar extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         if (currentIndex != index) {
-          Navigator.pushReplacementNamed(context, route);
+          Navigator.pushNamed(context, route);
         }
       },
       child: Stack(

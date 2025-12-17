@@ -1,6 +1,6 @@
 import 'package:classpall_flutter/routes/app_routes.dart';
 import 'package:flutter/material.dart';
-import 'package:classpall_flutter/widgets/custom_bottom_bar.dart'; 
+import 'package:classpall_flutter/widgets/custom_bottom_bar.dart';
 import 'package:classpall_flutter/routes/app_routes.dart';
 
 class AdminDashboard extends StatefulWidget {
@@ -57,7 +57,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               'Đăng ký Sự kiện',
               'Tạo sự kiện, quản lý điểm danh',
               () {
-                Navigator.pushNamed(context, AppRoutes.adminEventList);                
+                Navigator.pushNamed(context, AppRoutes.adminEventList);
               },
             ),
             const SizedBox(height: 16),
