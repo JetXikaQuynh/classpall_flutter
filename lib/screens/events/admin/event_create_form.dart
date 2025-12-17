@@ -180,6 +180,12 @@ class _EventCreateFormState extends State<EventCreateForm> {
                 child: ElevatedButton(
                   onPressed: _submit,
                   child: const Text('Tạo sự kiện'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
               ),
             ],

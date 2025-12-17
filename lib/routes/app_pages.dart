@@ -67,12 +67,10 @@ class AppPages {
 
     // Member
     AppRoutes.memberEventList: (_) => const MemberEventListPage(),
-
     // =========== Fund ==============
     AppRoutes.fund: (_) => const FundScreen(),
     AppRoutes.fundCollection: (_) => const FundCollection(),
     AppRoutes.expense: (_) => const ExpenseScreen(),
-
 
     //Notification
     AppRoutes.notification: (_) => const NotificationsScreen(),

@@ -16,11 +16,12 @@ class _MemberDashboardState extends State<MemberDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FDFF),
+      backgroundColor: Colors.blue.shade50,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFE1F5FE),
+        backgroundColor: Color.fromARGB(255, 255, 255, 255),
         elevation: 0,
         toolbarHeight: 90,
+        automaticallyImplyLeading: false, 
         title: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -147,7 +148,7 @@ class _MemberDashboardState extends State<MemberDashboard> {
                   ],
                 ),
               ),
-              const Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 20),
+              const Icon(Icons.arrow_forward_ios, color:  Color.fromARGB(255, 255, 255, 255)),
             ],
           ),
         ),

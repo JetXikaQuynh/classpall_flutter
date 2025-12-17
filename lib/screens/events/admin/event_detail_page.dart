@@ -43,6 +43,7 @@ class _EventDetailPageState extends State<EventDetailPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blue.shade50,
       appBar: AppBar(
         title: const Text('Chi tiết Sự kiện'),
         leading: const BackButton(),
@@ -52,7 +53,6 @@ class _EventDetailPageState extends State<EventDetailPage>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// ===== TITLE =====
             const Text(
               'Hội thảo Khoa học Công nghệ 2024',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -105,6 +105,12 @@ class _EventDetailPageState extends State<EventDetailPage>
               child: OutlinedButton.icon(
                 icon: const Icon(Icons.download),
                 label: const Text('Xuất danh sách CSV'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue, // màu nền nút
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
                 onPressed: () => _exportCsv(context),
               ),
             ),
@@ -122,7 +128,7 @@ class _EventDetailPageState extends State<EventDetailPage>
               children: const [
                 Expanded(
                   child: _DashboardBox(
-                    color: Color(0xFFE8F5E9),
+                    color: Color.fromARGB(255, 107, 115, 222),
                     title: 'Đã đăng ký',
                     value: '30 / 50',
                   ),
@@ -145,9 +151,7 @@ class _EventDetailPageState extends State<EventDetailPage>
               child: ElevatedButton.icon(
                 icon: const Icon(Icons.notifications_active),
                 label: const Text('Gửi nhắc nhở'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                ),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
                 onPressed: () => _sendReminder(context),
               ),
             ),
@@ -157,7 +161,7 @@ class _EventDetailPageState extends State<EventDetailPage>
             TabBar(
               controller: _tabController,
               labelColor: Theme.of(context).primaryColor,
-              unselectedLabelColor: Colors.grey,
+              unselectedLabelColor: const Color.fromARGB(255, 255, 255, 255),
               tabs: const [
                 Tab(text: 'Chưa đăng ký (20)'),
                 Tab(text: 'Đã đăng ký (30)'),
@@ -170,14 +174,8 @@ class _EventDetailPageState extends State<EventDetailPage>
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  _StudentList(
-                    count: 20,
-                    warning: true,
-                  ),
-                  _StudentList(
-                    count: 30,
-                    warning: false,
-                  ),
+                  _StudentList(count: 20, warning: true),
+                  _StudentList(count: 30, warning: false),
                 ],
               ),
             ),
@@ -227,10 +225,7 @@ class _StudentList extends StatelessWidget {
   final int count;
   final bool warning;
 
-  const _StudentList({
-    required this.count,
-    required this.warning,
-  });
+  const _StudentList({required this.count, required this.warning});
 
   @override
   Widget build(BuildContext context) {
