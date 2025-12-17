@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+// Assets_checkout
+import 'package:classpall_flutter/screens/assets_checkout/asset_history_screen.dart';
+import 'package:classpall_flutter/screens/assets_checkout/asset_screen.dart';
 // Auth + Dashboard ===
 import 'package:classpall_flutter/screens/splash/splash_screen.dart';
 import 'package:classpall_flutter/screens/auth/login_page.dart';
@@ -62,5 +65,9 @@ class AppPages {
 
     //Notification
     AppRoutes.notification: (_) => const NotificationsScreen(),
+
+    //Assets
+    AppRoutes.assetHistory: (_) => const AssetHistoryScreen(),
+    AppRoutes.assets: (_) => const AssetsScreen(),
   };
 }

@@ -75,7 +75,9 @@ class _MemberDashboardState extends State<MemberDashboard> {
               Colors.brown,
               'Mượn Tài sản',
               'Mượn và trả tài sản lớp',
-              () {},
+              () {
+                Navigator.pushNamed(context, AppRoutes.assets);
+              },
             ),
             const SizedBox(height: 16),
             _buildCard(

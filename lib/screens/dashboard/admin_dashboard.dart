@@ -75,7 +75,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
               Colors.brown,
               'Quản lý Tài sản',
               'Theo dõi tài sản lớp',
-              () {},
+              () {
+                Navigator.pushNamed(context, AppRoutes.assets);
+              },
             ),
             const SizedBox(height: 16),
             _buildCard(

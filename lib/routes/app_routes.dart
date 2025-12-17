@@ -32,4 +32,8 @@ class AppRoutes {
   // Member
   static const memberEventList = '/member-event-list';
   static const memberEventDetail = '/member-event-detail';
+
+  // ================ ASSETS CHECKOUT ================
+  static const assetHistory = '/asset-history';
+  static const assets = '/assets';
 }
