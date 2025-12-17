@@ -23,8 +23,7 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
       ),
       actions: [
         ElevatedButton(
-          onPressed: () =>
-              Navigator.pop(context, controller.text.trim()),
+          onPressed: () => Navigator.pop(context, controller.text.trim()),
           child: const Text('Thêm'),
         ),
       ],
