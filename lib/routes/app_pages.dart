@@ -64,7 +64,6 @@ class AppPages {
 
     // Member
     AppRoutes.memberEventList: (_) => const MemberEventListPage(),
-    AppRoutes.memberEventDetail: (_) => const MemberEventDetailPage(),
 
     // =========== Fund ==============
     AppRoutes.fund: (_) => const FundScreen(),

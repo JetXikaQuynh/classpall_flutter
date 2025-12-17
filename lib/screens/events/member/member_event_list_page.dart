@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:classpall_flutter/widgets/custom_bottom_bar.dart';
+import 'package:classpall_flutter/screens/events/member/event_decline_form.dart';
 
 enum EventStatus { pending, joined }
 
@@ -21,6 +22,7 @@ class _MemberEventListPageState extends State<MemberEventListPage> {
       'time': '18:00',
       'location': 'Nhà hàng ABC',
       'registered': '39/50 sinh viên đã đăng ký',
+      'isRequired': true,
       'status': EventStatus.pending,
     },
     {
@@ -31,19 +33,19 @@ class _MemberEventListPageState extends State<MemberEventListPage> {
       'time': '08:00',
       'location': 'Tập trung tại cổng trường',
       'registered': '30/50 sinh viên đã đăng ký',
-      'status': EventStatus.joined,
+      'isRequired': false,
+      'status': EventStatus.pending,
     },
   ];
 
   List<Map<String, dynamic>> get filteredEvents {
-    return events
-        .where((e) => e['status'] == _currentStatus)
-        .toList();
+    return events.where((e) => e['status'] == _currentStatus).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blue.shade50,
       appBar: AppBar(
         title: const Text('Sự kiện lớp học'),
         bottom: PreferredSize(
@@ -51,15 +53,15 @@ class _MemberEventListPageState extends State<MemberEventListPage> {
           child: Padding(
             padding: const EdgeInsets.only(bottom: 8, left: 16),
             child: Text(
-              'Quản lý đăng ký sự kiện',
-              style: TextStyle(color: Colors.grey[600]),
+              'Quản lý phản hồi sự kiện',
+              style: TextStyle(color: const Color.fromARGB(255, 255, 255, 255)),
             ),
           ),
         ),
       ),
       body: Column(
         children: [
-          // ===== FILTER HEADER =====
+          // ===== FILTER =====
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -91,7 +93,7 @@ class _MemberEventListPageState extends State<MemberEventListPage> {
                       });
                     },
                     child: _buildFilterChip(
-                      label: 'Đã đăng ký',
+                      label: 'Đã phản hồi',
                       count: events
                           .where((e) => e['status'] == EventStatus.joined)
                           .length,
@@ -105,14 +107,13 @@ class _MemberEventListPageState extends State<MemberEventListPage> {
             ),
           ),
 
-          // ===== EVENT LIST =====
+          // ===== LIST =====
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               itemCount: filteredEvents.length,
               itemBuilder: (context, index) {
-                final event = filteredEvents[index];
-                return _buildEventCard(event);
+                return _buildEventCard(filteredEvents[index]);
               },
             ),
           ),
@@ -134,43 +135,46 @@ class _MemberEventListPageState extends State<MemberEventListPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(event['title'],
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    event['title'],
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                if (event['isRequired'] == true)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      'Bắt buộc',
+                      style: TextStyle(color: Colors.red, fontSize: 12),
+                    ),
+                  ),
+              ],
+            ),
             const SizedBox(height: 8),
-            Text(event['description'],
-                style: TextStyle(color: Colors.grey[700])),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                const Icon(Icons.calendar_today, size: 16, color: Colors.red),
-                const SizedBox(width: 6),
-                Text(event['date']),
-                const SizedBox(width: 16),
-                const Icon(Icons.access_time, size: 16),
-                const SizedBox(width: 6),
-                Text(event['time']),
-              ],
+            Text(
+              event['description'],
+              style: TextStyle(color: Colors.grey[700]),
             ),
             const SizedBox(height: 12),
-            Row(
-              children: [
-                const Icon(Icons.location_on, size: 16, color: Colors.red),
-                const SizedBox(width: 6),
-                Text(event['location']),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                const Icon(Icons.people, size: 16, color: Colors.blue),
-                const SizedBox(width: 6),
-                Text(event['registered']),
-              ],
-            ),
+            _infoRow(Icons.calendar_today, event['date']),
+            _infoRow(Icons.access_time, event['time']),
+            _infoRow(Icons.location_on, event['location']),
+            _infoRow(Icons.people, event['registered']),
             const SizedBox(height: 16),
 
-            // ===== ACTION BUTTON =====
             if (isPending)
               Row(
                 children: [
@@ -179,27 +183,62 @@ class _MemberEventListPageState extends State<MemberEventListPage> {
                       onPressed: () {
                         setState(() {
                           event['status'] = EventStatus.joined;
+                          event['joined'] = true;
                         });
                       },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green, // màu nền xanh lá
+                        foregroundColor: Colors.white, // chữ màu trắng
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        elevation: 2,
+                      ),
+
                       child: const Text('Tham gia'),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        if (event['isRequired'] == true) {
+                          showRequiredEventDialog(context);
+                          return;
+                        }
+
+                        setState(() {
+                          event['status'] = EventStatus.joined;
+                          event['joined'] = false;
+                        });
+                      },
                       child: const Text('Không tham gia'),
                     ),
                   ),
                 ],
               )
             else
-              const Text(
-                '✔ Bạn đã đăng ký sự kiện này',
-                style: TextStyle(color: Colors.green),
+              Text(
+                event['joined'] == true
+                    ? '✔ Bạn đã tham gia sự kiện này'
+                    : '✖ Bạn đã từ chối tham gia sự kiện này',
+                style: TextStyle(
+                  color: event['joined'] == true ? Colors.green : Colors.red,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _infoRow(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [Icon(icon, size: 16), const SizedBox(width: 6), Text(text)],
       ),
     );
   }

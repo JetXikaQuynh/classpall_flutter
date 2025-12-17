@@ -3,8 +3,6 @@ import 'package:classpall_flutter/widgets/custom_bottom_bar.dart';
 import 'package:classpall_flutter/widgets/event/event_card_admin.dart';
 import 'package:classpall_flutter/routes/app_routes.dart';
 
-
-
 import 'event_create_form.dart';
 
 class EventListPage extends StatelessWidget {
@@ -25,6 +23,7 @@ class EventListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blue.shade50,
       appBar: AppBar(
         leading: const BackButton(),
         title: const Text('Quản lý Sự kiện'),
@@ -33,20 +32,8 @@ class EventListPage extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Danh sách sự kiện lớp học',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ),
-            ),
-
             const SizedBox(height: 12),
 
-            // ===== BUTTON TẠO SỰ KIỆN =====
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: SizedBox(
@@ -55,13 +42,18 @@ class EventListPage extends StatelessWidget {
                   onPressed: () => _openCreateEvent(context),
                   icon: const Icon(Icons.add),
                   label: const Text('Tạo sự kiện mới'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue, 
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
               ),
             ),
 
             const SizedBox(height: 12),
 
-            /// ===== EVENT LIST =====
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -78,10 +70,7 @@ class EventListPage extends StatelessWidget {
                     capacity: 50,
                     isRequired: true,
                     onTap: () {
-                      Navigator.pushNamed(
-                        context,
-                          AppRoutes.adminEventDetail,
-                      );
+                      Navigator.pushNamed(context, AppRoutes.adminEventDetail);
                     },
                   );
                 },

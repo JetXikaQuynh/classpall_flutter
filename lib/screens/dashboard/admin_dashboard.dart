@@ -16,11 +16,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FDFF),
+      backgroundColor: Colors.blue.shade50,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFE1F5FE),
+        backgroundColor: Color.fromARGB(255, 255, 255, 255),
         elevation: 0,
         toolbarHeight: 90,
+        automaticallyImplyLeading: false, 
         title: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -41,7 +42,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         ),
       ),
       body: SingleChildScrollView(
-        // THÊM SCROLL Ở ĐÂY
+       
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,11 +93,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
             const SizedBox(
               height: 100,
-            ), // thêm khoảng trống dưới để scroll đẹp khi có nhiều card
+            ), 
           ],
         ),
       ),
-      // bottomNavigationBar: CustomBottomBar(currentIndex: _currentIndex),
+      
       bottomNavigationBar: const CustomBottomBar(currentIndex: 0),
     );
   }
@@ -149,7 +150,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   ],
                 ),
               ),
-              const Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 20),
+              const Icon(Icons.arrow_forward_ios, color: Color.fromARGB(255, 255, 255, 255), size: 20),
             ],
           ),
         ),
