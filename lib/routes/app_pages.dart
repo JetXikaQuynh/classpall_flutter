@@ -1,3 +1,6 @@
+import 'package:classpall_flutter/screens/fund/expense_screen.dart';
+import 'package:classpall_flutter/screens/fund/fund_collection_screen.dart';
+import 'package:classpall_flutter/screens/fund/fund_screen.dart';
 import 'package:flutter/material.dart';
 
 // Auth + Dashboard ===
@@ -60,5 +63,10 @@ class AppPages {
     // Member
     AppRoutes.memberEventList: (_) => const MemberEventListPage(),
     AppRoutes.memberEventDetail: (_) => const MemberEventDetailPage(),
+
+    // =========== Fund ==============
+    AppRoutes.fund: (_) => const FundScreen(),
+    AppRoutes.fundCollection: (_) => const FundCollection(),
+    AppRoutes.expense: (_) => const ExpenseScreen(),
   };
 }
