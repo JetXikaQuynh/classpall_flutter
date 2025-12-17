@@ -1,3 +1,4 @@
+import 'package:classpall_flutter/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:classpall_flutter/widgets/custom_bottom_bar.dart';
 import 'package:classpall_flutter/routes/app_routes.dart';
@@ -75,7 +76,9 @@ class _MemberDashboardState extends State<MemberDashboard> {
               Colors.brown,
               'Mượn Tài sản',
               'Mượn và trả tài sản lớp',
-              () {},
+              () {
+                Navigator.pushNamed(context, AppRoutes.assets);
+              },
             ),
             const SizedBox(height: 16),
             _buildCard(
@@ -83,7 +86,9 @@ class _MemberDashboardState extends State<MemberDashboard> {
               Colors.green,
               'Quỹ lớp',
               'Xem thông tin quỹ lớp',
-              () {},
+              () {
+                Navigator.pushNamed(context, AppRoutes.fund);
+              },
             ),
             const SizedBox(height: 100), // thêm khoảng trống để scroll đẹp
           ],

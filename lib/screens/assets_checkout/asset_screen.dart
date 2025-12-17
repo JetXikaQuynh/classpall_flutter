@@ -1,7 +1,9 @@
+import 'package:classpall_flutter/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'add_asset_dialog.dart';
 import 'confirm_borrow_dialog.dart';
-import 'asset_history_screen.dart';
+import 'confirm_return_dialog.dart';
+import 'package:classpall_flutter/widgets/custom_bottom_bar.dart';
 
 class AssetsScreen extends StatefulWidget {
   const AssetsScreen({super.key});
@@ -17,9 +19,9 @@ class _AssetsScreenState extends State<AssetsScreen> {
     {'name': 'Chìa khóa tủ bảng', 'borrowed': false},
   ];
 
-  bool expandTotal = true;
-  bool expandAvailable = true;
-  bool expandBorrowed = true;
+  bool expandTotal = false;
+  bool expandAvailable = false;
+  bool expandBorrowed = false;
 
   // ===== ACTIONS =====
 
@@ -44,9 +46,13 @@ class _AssetsScreenState extends State<AssetsScreen> {
   }
 
   Future<void> _borrowAsset(int index) async {
+    final assetName = assets[index]['name'];
+
     final ok = await showDialog<bool>(
       context: context,
-      builder: (_) => const ConfirmBorrowDialog(),
+      builder: (_) => ConfirmBorrowDialog(
+        assetName: assetName,
+      ),
     );
 
     if (ok == true) {
@@ -55,6 +61,25 @@ class _AssetsScreenState extends State<AssetsScreen> {
       });
     }
   }
+
+  Future<void> _returnAsset(int index) async {
+    final assetName = assets[index]['name'];
+
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => ConfirmReturnDialog(
+        assetName: assetName,
+      ),
+    );
+
+    if (ok == true) {
+      setState(() {
+        assets[index]['borrowed'] = false;
+      });
+    }
+  }
+
+  int _currentIndex = 0;
 
   // ===== BUILD =====
 
@@ -132,8 +157,14 @@ class _AssetsScreenState extends State<AssetsScreen> {
                 ),
                 if (expandBorrowed)
                   ...assets
-                      .where((e) => e['borrowed'])
-                      .map((e) => _assetRow(e, borrowedView: true))
+                      .asMap()
+                      .entries
+                      .where((e) => e.value['borrowed'])
+                      .map((e) => _assetRow(
+                      e.value,
+                      borrowedView: true,
+                      onReturn: () => _returnAsset(e.key),
+                  ))
                       .toList(),
               ],
             ),
@@ -143,17 +174,7 @@ class _AssetsScreenState extends State<AssetsScreen> {
         ],
       ),
 
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
-        items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined), label: ''),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.notifications_none), label: ''),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline), label: ''),
-        ],
-      ),
+      bottomNavigationBar: CustomBottomBar(currentIndex: _currentIndex),
     );
   }
 
@@ -223,6 +244,7 @@ class _AssetsScreenState extends State<AssetsScreen> {
   Widget _assetRow(
       Map<String, dynamic> asset, {
         VoidCallback? onBorrow,
+        VoidCallback? onReturn,
         bool borrowedView = false,
       }) {
     return Container(
@@ -243,7 +265,10 @@ class _AssetsScreenState extends State<AssetsScreen> {
               child: _badge('Mượn'),
             ),
           if (borrowedView)
-            _badge('Trả', color: Colors.blue),
+            GestureDetector(
+              onTap: onReturn,
+              child: _badge('Trả',color: Colors.blue),
+            ),
           const SizedBox(width: 8),
           const Icon(Icons.delete_outline, color: Colors.grey),
         ],
@@ -267,25 +292,30 @@ class _AssetsScreenState extends State<AssetsScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       color: Colors.white,
-      child: SizedBox(
-        width: double.infinity,
-        height: 44,
-        child: ElevatedButton.icon(
-          icon: const Icon(Icons.history),
-          label: const Text('Lịch sử'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF2F80ED),
-            shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.of(
+            context, rootNavigator : true).pushNamed(
+          AppRoutes.assetHistory,
+          );
+        },
+        child: Container(
+          height: 44,
+          decoration: BoxDecoration(
+            color: const Color(0xFF2F80ED),
+            borderRadius: BorderRadius.circular(8),
           ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const AssetHistoryScreen(),
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.history, color: Colors.white),
+              SizedBox(width: 8),
+              Text(
+                'Lịch sử',
+                style: TextStyle(color: Colors.white),
               ),
-            );
-          },
+            ],
+          ),
         ),
       ),
     );
