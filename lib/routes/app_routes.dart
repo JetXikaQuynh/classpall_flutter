@@ -37,4 +37,7 @@ class AppRoutes {
   static const fund = '/fund';
   static const fundCollection = '/fund-collection';
   static const expense = '/expense';
+  // ================ ASSETS CHECKOUT ================
+  static const assetHistory = '/asset-history';
+  static const assets = '/assets';
 }
