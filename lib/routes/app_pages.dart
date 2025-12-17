@@ -12,11 +12,9 @@ import 'package:classpall_flutter/screens/dashboard/member_dashboard.dart';
 // Event - Admin
 import 'package:classpall_flutter/screens/events/admin/event_list_page.dart';
 import 'package:classpall_flutter/screens/events/admin/event_detail_page.dart';
-import 'package:classpall_flutter/screens/events/admin/event_create_page.dart';
 
 // Event - Member
 import 'package:classpall_flutter/screens/events/member/member_event_list_page.dart';
-import 'package:classpall_flutter/screens/events/member/member_event_detail_page.dart';
 
 // Duty screens
 import 'package:classpall_flutter/screens/duty/admin_dashboard_duty.dart';
@@ -30,11 +28,13 @@ import 'package:classpall_flutter/screens/profile/personal_profile_screen.dart';
 import 'package:classpall_flutter/screens/profile/edit_profile_screen.dart';
 import 'package:classpall_flutter/screens/profile/permission_screen.dart';
 
+//Notification
+import 'package:classpall_flutter/screens/notifications.dart';
+
 import 'app_routes.dart';
 
 class AppPages {
   static final Map<String, WidgetBuilder> routes = {
-    // Home (tạm thời dùng splash, sau merge team sẽ có home thật)
     AppRoutes.home: (_) => const SplashScreen(),
 
     //
@@ -58,7 +58,6 @@ class AppPages {
     // Admin
     AppRoutes.adminEventList: (_) => const EventListPage(),
     AppRoutes.adminEventDetail: (_) => const EventDetailPage(),
-    AppRoutes.adminEventCreate: (_) => const EventCreatePage(),
 
     // Member
     AppRoutes.memberEventList: (_) => const MemberEventListPage(),
@@ -68,5 +67,9 @@ class AppPages {
     AppRoutes.fund: (_) => const FundScreen(),
     AppRoutes.fundCollection: (_) => const FundCollection(),
     AppRoutes.expense: (_) => const ExpenseScreen(),
+
+
+    //Notification
+    AppRoutes.notification: (_) => const NotificationsScreen(),
   };
 }

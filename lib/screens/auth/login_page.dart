@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:classpall_flutter/routes/app_routes.dart'; // THÊM IMPORT NÀY
+import 'package:classpall_flutter/routes/app_routes.dart';
+import 'package:classpall_flutter/services/auth_service.dart'; // THÊM IMPORT NÀY
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,11 +20,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _errorMessage = null);
 
-    // 2 tài khoản test sẵn
+    // KIỂM TRA TÀI KHOẢN VÀ GÁN ROLE TOÀN CỤC
     if (email == 'admin@classpal.com' && password == 'admin123') {
-      Navigator.pushReplacementNamed(context, AppRoutes.adminDashboard); // DÙNG CONSTANT, TÊN NHẤT QUÁN
+      // 1. Gán quyền Admin vào AuthService
+      AuthService.setRole(true);
+      // 2. Chuyển sang Dashboard Admin
+      Navigator.pushReplacementNamed(context, AppRoutes.adminDashboard);
     } else if (email == 'member@classpal.com' && password == 'member123') {
-      Navigator.pushReplacementNamed(context, AppRoutes.memberDashboard); // DÙNG CONSTANT, TÊN NHẤT QUÁN
+      // 1. Gán quyền Member vào AuthService (false)
+      AuthService.setRole(false);
+      // 2. Chuyển sang Dashboard Member
+      Navigator.pushReplacementNamed(context, AppRoutes.memberDashboard);
     } else {
       setState(() {
         _errorMessage = 'Sai email hoặc mật khẩu. Hãy thử tài khoản test!';
@@ -63,50 +70,101 @@ class _LoginScreenState extends State<LoginScreen> {
                     color: Colors.white.withOpacity(0.3),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.school_rounded, color: Color(0xFF1976D2), size: 40),
+                  child: const Icon(
+                    Icons.school_rounded,
+                    color: Color(0xFF1976D2),
+                    size: 40,
+                  ),
                 ),
                 const SizedBox(height: 20),
-                const Text("Class Pal", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF0D47A1))),
+                const Text(
+                  "Class Pal",
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF0D47A1),
+                  ),
+                ),
                 const SizedBox(height: 4),
-                const Text("Ứng dụng quản lý lớp học thông minh", style: TextStyle(fontSize: 14, color: Colors.black54)),
+                const Text(
+                  "Ứng dụng quản lý lớp học thông minh",
+                  style: TextStyle(fontSize: 14, color: Colors.black54),
+                ),
                 const SizedBox(height: 35),
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
-                    boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 12, offset: Offset(0, 4))],
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 12,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Center(child: Text("Đăng Nhập", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF0D47A1)))),
+                      const Center(
+                        child: Text(
+                          "Đăng Nhập",
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF0D47A1),
+                          ),
+                        ),
+                      ),
                       const SizedBox(height: 28),
-                      const Text("Email", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                      const Text(
+                        "Email",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       TextField(
                         controller: _emailController,
                         decoration: InputDecoration(
                           hintText: "email@university.edu.vn",
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                           prefixIcon: const Icon(Icons.email_outlined),
                         ),
                       ),
                       const SizedBox(height: 20),
-                      const Text("Mật khẩu", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                      const Text(
+                        "Mật khẩu",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       TextField(
                         controller: _passwordController,
                         obscureText: true,
                         decoration: InputDecoration(
                           hintText: "******",
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                           prefixIcon: const Icon(Icons.lock_outline),
                         ),
                       ),
                       if (_errorMessage != null) ...[
                         const SizedBox(height: 12),
-                        Text(_errorMessage!, style: const TextStyle(color: Colors.red, fontSize: 14)),
+                        Text(
+                          _errorMessage!,
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 14,
+                          ),
+                        ),
                       ],
                       const SizedBox(height: 26),
                       SizedBox(
@@ -115,14 +173,18 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF1E88E5),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
                           onPressed: _login,
-                          child: const Text("Đăng nhập", style: TextStyle(fontSize: 16, color: Colors.white)),
+                          child: const Text(
+                            "Đăng nhập",
+                            style: TextStyle(fontSize: 16, color: Colors.white),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 20),
-                      // Hướng dẫn test (bạn có thể xóa sau)
                       const Center(
                         child: Text(
                           'Test: admin@classpal.com / admin123 (Admin)\n member@classpal.com / member123 (Member)',

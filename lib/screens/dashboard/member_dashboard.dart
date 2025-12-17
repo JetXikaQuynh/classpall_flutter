@@ -1,6 +1,7 @@
 import 'package:classpall_flutter/routes/app_routes.dart';
 import 'package:flutter/material.dart';
-import 'package:classpall_flutter/widgets/custom_bottom_bar.dart'; // import bottom bar
+import 'package:classpall_flutter/widgets/custom_bottom_bar.dart';
+import 'package:classpall_flutter/routes/app_routes.dart';
 
 class MemberDashboard extends StatefulWidget {
   const MemberDashboard({super.key});
@@ -11,13 +12,6 @@ class MemberDashboard extends StatefulWidget {
 
 class _MemberDashboardState extends State<MemberDashboard> {
   int _currentIndex = 0;
-
-  void _onBottomTap(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-    // Sau này xử lý navigation
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +56,9 @@ class _MemberDashboardState extends State<MemberDashboard> {
               Colors.redAccent,
               'Đăng ký Sự kiện',
               'Xem và đăng ký sự kiện lớp',
-              () {},
+              () {
+                Navigator.pushNamed(context, AppRoutes.memberEventList);
+              },
             ),
             const SizedBox(height: 16),
             _buildCard(
@@ -70,7 +66,9 @@ class _MemberDashboardState extends State<MemberDashboard> {
               Colors.orangeAccent,
               'Nhiệm vụ của tôi',
               'Xem nhiệm vụ được giao',
-              () {},
+              () {
+                Navigator.pushNamed(context, AppRoutes.memberDashboardDuty);
+              },
             ),
             const SizedBox(height: 16),
             _buildCard(
@@ -94,7 +92,8 @@ class _MemberDashboardState extends State<MemberDashboard> {
           ],
         ),
       ),
-      bottomNavigationBar: CustomBottomBar(currentIndex: _currentIndex),
+      // bottomNavigationBar: CustomBottomBar(currentIndex: _currentIndex),
+      bottomNavigationBar: const CustomBottomBar(currentIndex: 0),
     );
   }
 
