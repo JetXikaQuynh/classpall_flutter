@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:classpall_flutter/routes/app_routes.dart';
-import 'package:classpall_flutter/services/auth_service.dart'; // THÊM IMPORT NÀY
+import 'package:classpall_flutter/services/auth_service.dart'; 
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,28 +12,41 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _isLoading = false;
   String? _errorMessage;
 
-  void _login() {
+  Future<void> _login() async {
     final email = _emailController.text.trim();
-    final password = _passwordController.text;
+    final password = _passwordController.text.trim();
 
-    setState(() => _errorMessage = null);
+    if (email.isEmpty || password.isEmpty) {
+      setState(() {
+        _errorMessage = 'Vui lòng nhập đầy đủ email và mật khẩu';
+      });
+      return;
+    }
 
-    // KIỂM TRA TÀI KHOẢN VÀ GÁN ROLE TOÀN CỤC
-    if (email == 'admin@classpal.com' && password == 'admin123') {
-      // 1. Gán quyền Admin vào AuthService
-      AuthService.setRole(true);
-      // 2. Chuyển sang Dashboard Admin
-      Navigator.pushReplacementNamed(context, AppRoutes.adminDashboard);
-    } else if (email == 'member@classpal.com' && password == 'member123') {
-      // 1. Gán quyền Member vào AuthService (false)
-      AuthService.setRole(false);
-      // 2. Chuyển sang Dashboard Member
-      Navigator.pushReplacementNamed(context, AppRoutes.memberDashboard);
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    // ===  Dùng Firebase Auth thật ===
+    final success = await AuthService.signIn(email, password);
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (success) {
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoutes.splash,
+        (route) => false,
+      );
     } else {
       setState(() {
-        _errorMessage = 'Sai email hoặc mật khẩu. Hãy thử tài khoản test!';
+        _errorMessage = 'Sai email hoặc mật khẩu. Vui lòng thử lại!';
       });
     }
   }
@@ -47,6 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+   
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -128,6 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 8),
                       TextField(
                         controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
                           hintText: "email@university.edu.vn",
                           border: OutlineInputBorder(
@@ -177,21 +192,16 @@ class _LoginScreenState extends State<LoginScreen> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-                          onPressed: _login,
-                          child: const Text(
-                            "Đăng nhập",
-                            style: TextStyle(fontSize: 16, color: Colors.white),
-                          ),
+                          onPressed: _isLoading ? null : _login,
+                          child: _isLoading
+                              ? const CircularProgressIndicator(color: Colors.white)
+                              : const Text(
+                                  "Đăng nhập",
+                                  style: TextStyle(fontSize: 16, color: Colors.white),
+                                ),
                         ),
                       ),
                       const SizedBox(height: 20),
-                      const Center(
-                        child: Text(
-                          'Test: admin@classpal.com / admin123 (Admin)\n member@classpal.com / member123 (Member)',
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
                     ],
                   ),
                 ),
