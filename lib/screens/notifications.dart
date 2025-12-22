@@ -84,7 +84,9 @@ class NotificationsScreen extends StatelessWidget {
               time: "2 ngày trước",
               actionText: "Xem chi tiết →",
               isUnread: false,
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, AppRoutes.fund);
+              },
             ),
           ],
         ),
