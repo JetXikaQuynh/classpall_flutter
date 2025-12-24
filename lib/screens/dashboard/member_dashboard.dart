@@ -1,7 +1,7 @@
 import 'package:classpall_flutter/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:classpall_flutter/widgets/custom_bottom_bar.dart';
-import 'package:classpall_flutter/routes/app_routes.dart';
+
 
 class MemberDashboard extends StatefulWidget {
   const MemberDashboard({super.key});
@@ -11,7 +11,6 @@ class MemberDashboard extends StatefulWidget {
 }
 
 class _MemberDashboardState extends State<MemberDashboard> {
-  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +34,7 @@ class _MemberDashboardState extends State<MemberDashboard> {
             ),
             SizedBox(height: 4),
             Text(
-              'Xin chào, Sinh viên 5',
+              'Xin chào, Sinh viên ',
               style: TextStyle(fontSize: 15, color: Colors.black54),
             ),
           ],
