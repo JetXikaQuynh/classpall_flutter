@@ -5,6 +5,8 @@ import 'package:classpall_flutter/services/event_services/event_registration_ser
 import 'package:classpall_flutter/models/event_models/event_model.dart';
 import 'package:classpall_flutter/services/auth_service.dart'; 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:classpall_flutter/services/event_services/event_export_service.dart';
+
 
 class EventDetailPage extends StatefulWidget {
   const EventDetailPage({super.key});
@@ -23,11 +25,19 @@ class _EventDetailPageState extends State<EventDetailPage>
     super.dispose();
   }
 
-  void _exportCsv(BuildContext context) {
+void _exportCsv(BuildContext context, String eventId) async {
+  try {
+    await EventExportService.exportEventParticipants(eventId);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Xuất danh sách CSV (UI demo)')),
+      const SnackBar(content: Text('Xuất file thành công')),
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(e.toString())),
     );
   }
+}
+
 
   void _sendReminder(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -99,7 +109,7 @@ class _EventDetailPageState extends State<EventDetailPage>
               return FutureBuilder<int>(
                 future: AuthService.getTotalMembers(), // Lấy tổng từ users
                 builder: (context, totalSnapshot) {
-                  final totalMembers = totalSnapshot.data ?? event.totalClass ?? 50;
+                  final totalMembers = totalSnapshot.data ?? event.totalClass ?? 0;
                   final pendingCount = totalMembers - registeredUids.length; // Chưa phản hồi = total - registered
 
                   return SingleChildScrollView(
@@ -156,7 +166,7 @@ class _EventDetailPageState extends State<EventDetailPage>
                               backgroundColor: Colors.blue,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             ),
-                            onPressed: () => _exportCsv(context),
+                            onPressed: () =>  _exportCsv(context, eventId),
                           ),
                         ),
 
