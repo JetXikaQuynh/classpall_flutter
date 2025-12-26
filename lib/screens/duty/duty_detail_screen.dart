@@ -1,241 +1,259 @@
 import 'package:flutter/material.dart';
-import 'package:classpall_flutter/widgets/duty/duty_detail_card.dart';
-import 'package:classpall_flutter/widgets/duty/assignee_card.dart';
-import 'package:classpall_flutter/widgets/duty/rotation_history_item.dart';
+
+import '../../models/duty_models/duty_assignment_model.dart';
+import '../../models/duty_models/duty_model.dart';
+import '../../models/duty_models/team_model.dart';
+import '../../models/user_model.dart';
+
+import '../../services/duty_services/duty_assignment_service.dart';
+import '../../services/duty_services/duty_service.dart';
+import '../../services/duty_services/team_service.dart';
+import '../../services/user_service.dart';
+import '../../services/auth_service.dart';
+
+import '../../widgets/duty/duty_detail_card.dart';
+import '../../widgets/duty/assignee_card.dart';
+import '../../widgets/duty/rotation_history_item.dart';
 import 'confirm_duty_dialog.dart';
 
-class DutyDetailScreen extends StatelessWidget {
+class DutyDetailScreen extends StatefulWidget {
   const DutyDetailScreen({super.key});
 
-  // Dữ liệu giả định
-  final String userRole = "admin"; // "member" | "leader" | "admin"
-  final String dutyStatus =
-      "pending_approval"; // done | pending_approval | inprogress | late
+  @override
+  State<DutyDetailScreen> createState() => _DutyDetailScreenState();
+}
 
-  final List<Map<String, dynamic>> _assignees = const [
-    {
-      "name": "Đỗ Phương Quỳnh",
-      "isLeader": true,
-      "team": "Tổ 2",
-      "color": Colors.orange,
-    },
-    {
-      "name": "Đỗ Hải Lam",
-      "isLeader": false,
-      "team": null,
-      "color": Colors.grey,
-    },
-    {
-      "name": "Đỗ Huy Hoàn",
-      "isLeader": false,
-      "team": null,
-      "color": Colors.grey,
-    },
-  ];
+class _DutyDetailScreenState extends State<DutyDetailScreen> {
+  final _assignmentService = DutyAssignmentService();
+  final _dutyService = DutyService();
+  final _teamService = TeamService();
+  final _userService = UserService();
 
-  final List<Map<String, dynamic>> _rotationHistory = const [
-    {"week": 12, "team": 3, "status": "Đã xong", "isCurrent": false},
-    {"week": 13, "team": 1, "status": "Đã xong", "isCurrent": false},
-    {"week": 14, "team": 2, "status": "Hiện tại", "isCurrent": true},
-    {"week": 15, "team": 3, "status": "", "isCurrent": false},
-    {"week": 16, "team": 1, "status": "", "isCurrent": false},
-  ];
+  bool _loading = true;
 
-  // Dữ liệu nhiệm vụ chính
-  final String _dutyName = "Giặt giẻ lau";
-  final String _dutyDescription =
-      "Giặt sạch giẻ lau bảng trước khi môn học mới bắt đầu";
+  DutyAssignmentModel? _assignment;
+  DutyModel? _duty;
+  TeamModel? _team;
+  List<UserModel> _members = [];
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final assignmentId = ModalRoute.of(context)!.settings.arguments as String;
+
+    _loadDetail(assignmentId);
+  }
+
+  // LOAD + JOIN DỮ LIỆU CHI TIẾT
+  Future<void> _loadDetail(String assignmentId) async {
+    setState(() => _loading = true);
+
+    // 1️⃣ Assignment
+    final assignment = await _assignmentService.getAssignmentById(assignmentId);
+    if (assignment == null) return;
+
+    // 2️⃣ Duty
+    final duty = await _dutyService.getDutyById(assignment.dutyId);
+
+    // 3️⃣ Team
+    final team = await _teamService.getTeamById(assignment.teamId);
+
+    // 4️⃣ Users trong team (🔥 DÙNG SERVICE CỦA BẠN)
+    final members = await _userService.getUsersByTeam(assignment.teamId);
+
+    setState(() {
+      _assignment = assignment;
+      _duty = duty;
+      _team = team;
+      _members = members;
+      _loading = false;
+    });
+  }
+
+  // 🔥 UPDATE STATUS
+  Future<void> _updateStatus(String status) async {
+    await _assignmentService.updateStatus(_assignment!.id, status);
+    _loadDetail(_assignment!.id);
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (_assignment == null || _duty == null || _team == null) {
+      return const Scaffold(
+        body: Center(child: Text("Không tìm thấy dữ liệu nhiệm vụ")),
+      );
+    }
+
+    final isAdmin = AuthService.isAdmin;
+    final isLeader = _members.any((u) => u.isLeader);
+
     return Scaffold(
       backgroundColor: Colors.blue.shade50,
 
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0,
         centerTitle: true,
         title: const Text(
           "Chi tiết nhiệm vụ",
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
       ),
 
-      bottomNavigationBar: _buildBottomButton(context, userRole, dutyStatus),
+      bottomNavigationBar: _buildBottomButton(
+        isAdmin,
+        isLeader,
+        _assignment!.status,
+      ),
 
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Tiêu đề Nhiệm vụ
+            /// TÊN NHIỆM VỤ
             Text(
-              _dutyName,
+              _duty!.name,
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 15),
 
-            // Thẻ Chi tiết (Thay thế _buildDetailCard)
+            const SizedBox(height: 16),
+
+            /// THÔNG TIN CHÍNH
             Container(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    spreadRadius: 1,
-                    blurRadius: 5,
-                    offset: const Offset(0, 1),
-                  ),
-                ],
+                borderRadius: BorderRadius.circular(12),
               ),
-              child: const Column(
+              child: Column(
                 children: [
                   DutyDetailCard(
                     label: "Trạng thái:",
-                    value: "Đang làm",
+                    value: _assignment!.status,
                     valueColor: Colors.orange,
                   ),
                   DutyDetailCard(
-                    label: "Bắt đầu:",
-                    value: "02/12/2025",
-                    valueColor: Colors.black87,
-                  ),
-                  DutyDetailCard(
-                    label: "Kết thúc:",
-                    value: "02/18/2025",
-                    valueColor: Colors.black87,
+                    label: "Tuần:",
+                    value: "${_assignment!.weekNumber}/${_assignment!.year}",
+                    valueColor: Colors.black,
                   ),
                   DutyDetailCard(
                     label: "Điểm thưởng:",
-                    value: "10 điểm",
-                    valueColor: Colors.black87,
+                    value: "${_duty!.points} điểm",
+                    valueColor: Colors.black,
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 15),
 
-            // Thẻ Người phụ trách (Thay thế _buildAssigneeCard)
-            AssigneeCard(teamName: "Tổ 2", assignees: _assignees),
-            const SizedBox(height: 15),
+            const SizedBox(height: 16),
 
-            // Thẻ Mô tả nhiệm vụ (Thay thế _buildDescriptionCard)
-            DutyDescriptionCard(description: _dutyDescription),
-            const SizedBox(height: 15),
+            /// TỔ PHỤ TRÁCH
+            AssigneeCard(
+              teamName: _team!.name,
+              assignees: _members
+                  .map(
+                    (u) => {
+                      "name": u.fullName,
+                      "isLeader": u.isLeader,
+                      "team": _team!.name,
+                      "color": u.isLeader ? Colors.orange : Colors.grey,
+                    },
+                  )
+                  .toList(),
+            ),
 
-            // Lịch sử xoay vòng
+            const SizedBox(height: 16),
+
+            /// MÔ TẢ
+            DutyDescriptionCard(description: _duty!.description),
+
+            const SizedBox(height: 16),
+
             const Text(
               "Lịch sử xoay vòng",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 10),
 
-            // List các tuần xoay vòng (Sử dụng RotationHistoryItem)
-            ..._rotationHistory
-                .map(
-                  (item) => RotationHistoryItem(
-                    week: item["week"],
-                    team: item["team"],
-                    status: item["status"],
-                    isCurrent: item["isCurrent"],
-                  ),
-                )
-                .toList(),
+            const SizedBox(height: 8),
 
-            const SizedBox(height: 15),
+            /// (Tạm dùng UI – có thể load Firestore sau)
+            RotationHistoryItem(
+              week: _assignment!.weekNumber,
+              team: _team!.name,
+              status: "Hiện tại",
+              isCurrent: true,
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget? _buildBottomButton(BuildContext context, String role, String status) {
-    // MEMBER -> không có nút
-    if (role == "member") return null;
+  //BOTTOM ACTION BUTTON
+  Widget? _buildBottomButton(bool isAdmin, bool isLeader, String status) {
+    // MEMBER
+    if (!isAdmin && !isLeader) return null;
 
-    // LEADER -> chỉ được thấy nút khi đang làm
-    if (role == "leader" && status == "inprogress") {
-      return Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SizedBox(
-          height: 50,
-          child: ElevatedButton(
-            onPressed: () {
-              print("Chuyển nhiệm vụ sang pending_approval");
-              // TODO: Update Firestore: status = 'pending_approval'
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color.fromARGB(255, 33, 44, 243),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            child: const Text(
-              "Đã hoàn thành",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ),
+    // LEADER -> DONE
+    if (isLeader && status == 'inprogress') {
+      return _buildButton(
+        "Đã hoàn thành",
+        Colors.blue,
+        () => _updateStatus('pending_approval'),
       );
     }
 
-    // ADMIN -> chỉ được thấy khi đang chờ xác nhận
-    if (role == "admin" && status == "pending_approval") {
-      return Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SizedBox(
-          height: 50,
-          child: ElevatedButton(
-            onPressed: () async {
-              final confirm = await ConfirmCompleteDialog.show(
-                context,
-                teamName: "Tổ 2",
-                bonusPoint: 10,
-              );
+    // ADMIN -> CONFIRM
+    if (isAdmin && status == 'pending_approval') {
+      return _buildButton("Xác nhận hoàn thành", Colors.green, () async {
+        final confirm = await ConfirmCompleteDialog.show(
+          context,
+          teamName: _team!.name,
+          bonusPoint: _duty!.points,
+        );
 
-              if (confirm == true) {
-                print(">>> ADMIN ĐÃ XÁC NHẬN HOÀN THÀNH");
-
-                // TODO:
-                // - Update Firestore status = done
-                // - Ghi vào duty_history
-                // - Cộng điểm cho tổ
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            child: const Text(
-              "Xác nhận hoàn thành",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ),
-      );
+        if (confirm == true) {
+          _updateStatus('done');
+        }
+      });
     }
 
-    // Trường hợp khác -> không hiện nút
     return null;
+  }
+
+  Widget _buildButton(String text, Color color, VoidCallback onPressed) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: SizedBox(
+        height: 50,
+        child: ElevatedButton(
+          onPressed: onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: color,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

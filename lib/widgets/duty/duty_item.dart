@@ -68,7 +68,7 @@ class DutyItem extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "Tổ $team   Hạn: $deadline",
+                    "$team   Hạn: Hết $deadline",
                     style: const TextStyle(fontSize: 12),
                   ),
                 ],

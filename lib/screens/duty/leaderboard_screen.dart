@@ -1,5 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../../models/duty_models/duty_assignment_model.dart';
+import '../../models/duty_models/duty_model.dart';
+import '../../models/duty_models/team_model.dart';
+
+import '../../services/duty_services/duty_assignment_service.dart';
+import '../../services/duty_services/duty_service.dart';
+import '../../services/duty_services/team_service.dart';
+
+/// 🔥 Stateful vì load dữ liệu Firestore
 class LeaderboardScreen extends StatefulWidget {
   const LeaderboardScreen({super.key});
 
@@ -10,26 +19,83 @@ class LeaderboardScreen extends StatefulWidget {
 class _LeaderboardScreenState extends State<LeaderboardScreen> {
   int selectedTab = 2; // 0 = tuần, 1 = tháng, 2 = tất cả
 
-  // Fake ranking data (sau này thay bằng Firestore)
-  final List<Map<String, dynamic>> leaderboard = [
-    {
-      "rank": 1,
-      "team": "1",
-      "points": 95,
-      "done": 12,
-      "progress": 1,
-      "late": 0,
-    },
-    {
-      "rank": 2,
-      "team": "3",
-      "points": 88,
-      "done": 10,
-      "progress": 2,
-      "late": 1,
-    },
-    {"rank": 3, "team": "2", "points": 82, "done": 9, "progress": 1, "late": 2},
-  ];
+  /// 🔥 SERVICES
+  final _assignmentService = DutyAssignmentService();
+  final _dutyService = DutyService();
+  final _teamService = TeamService();
+
+  bool _loading = true;
+
+  /// 🔥 DATA SAU KHI TÍNH
+  List<_LeaderboardItem> _leaderboard = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLeaderboard();
+  }
+
+  /// 🔥 LOAD + TÍNH ĐIỂM
+  Future<void> _loadLeaderboard() async {
+    setState(() => _loading = true);
+
+    // 1️⃣ Load data
+    final assignments = await _assignmentService.getAllAssignments();
+    final duties = await _dutyService.getAllDuties();
+    final teams = await _teamService.getAllTeams();
+
+    // 2️⃣ Map nhanh
+    final dutyMap = {for (var d in duties) d.id: d};
+    final teamMap = {for (var t in teams) t.id: t};
+
+    // 3️⃣ Khởi tạo bảng điểm
+    final Map<String, _LeaderboardItem> scoreMap = {};
+
+    for (var team in teams) {
+      scoreMap[team.id] = _LeaderboardItem(
+        teamName: team.name,
+        points: 0,
+        done: 0,
+        progress: 0,
+        late: 0,
+      );
+    }
+
+    // 4️⃣ TÍNH TOÁN
+    for (var a in assignments) {
+      final team = scoreMap[a.teamId];
+      final duty = dutyMap[a.dutyId];
+
+      if (team == null || duty == null) continue;
+
+      switch (a.status) {
+        case 'done':
+          team.done++;
+          team.points += duty.points;
+          break;
+        case 'inprogress':
+          team.progress++;
+          break;
+        case 'late':
+          team.late++;
+          break;
+      }
+    }
+
+    // 5️⃣ SORT THEO ĐIỂM
+    final result = scoreMap.values.toList()
+      ..sort((a, b) => b.points.compareTo(a.points));
+
+    // Gán thứ hạng
+    for (int i = 0; i < result.length; i++) {
+      result[i].rank = i + 1;
+    }
+
+    setState(() {
+      _leaderboard = result;
+      _loading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,92 +115,71 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
         ),
       ),
 
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // TAB BUTTONS
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _tabButton("Tuần", 0),
-                const SizedBox(width: 8),
-                _tabButton("Tháng", 1),
-                const SizedBox(width: 8),
-                _tabButton("Tất cả", 2),
-              ],
-            ),
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  /// 🔹 TAB
+                  Row(
+                    children: [
+                      _tabButton("Tuần", 0),
+                      const SizedBox(width: 8),
+                      _tabButton("Tháng", 1),
+                      const SizedBox(width: 8),
+                      _tabButton("Tất cả", 2),
+                    ],
+                  ),
 
-            const SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
-            // TOP 3 BAR CHART
-            Center(
-              child: SizedBox(
-                width: 260,
-                child: Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment.spaceBetween, //căn đều khoảng cách
-                  crossAxisAlignment:
-                      CrossAxisAlignment.end, //căn dưới thẳng hàng
-                  children: [
-                    _buildTopBar(
-                      team: "3",
-                      points: 88,
-                      height: 80,
-                      color: Colors.grey,
+                  /// 🔥 TOP 3
+                  if (_leaderboard.length >= 3)
+                    Center(
+                      child: SizedBox(
+                        width: 260,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            _buildTopBar(
+                              _leaderboard[1],
+                              80,
+                              const Color.fromARGB(255, 228, 173, 97),
+                            ),
+                            _buildTopBar(_leaderboard[0], 120, Colors.amber),
+                            _buildTopBar(_leaderboard[2], 50, Colors.grey),
+                          ],
+                        ),
+                      ),
                     ),
-                    _buildTopBar(
-                      team: "1",
-                      points: 95,
-                      height: 120,
-                      color: Colors.amber,
-                    ),
-                    _buildTopBar(
-                      team: "2",
-                      points: 82,
-                      height: 70,
-                      color: const Color.fromARGB(255, 228, 173, 97),
-                    ),
-                  ],
-                ),
+
+                  const SizedBox(height: 30),
+
+                  const Text(
+                    "Chi tiết xếp hạng",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  Column(
+                    children: _leaderboard
+                        .map((e) => _teamRankCard(e))
+                        .toList(),
+                  ),
+                ],
               ),
             ),
-
-            const SizedBox(height: 30),
-
-            // CHI TIẾT XẾP HẠNG
-            const Text(
-              "Chi tiết xếp hạng",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-
-            const SizedBox(height: 12),
-
-            //list team rank cards
-            Column(
-              children: leaderboard
-                  .map(
-                    (team) => _teamRankCard(
-                      rank: team["rank"],
-                      team: team["team"],
-                      points: team["points"],
-                      done: team["done"],
-                      progress: team["progress"],
-                      late: team["late"],
-                    ),
-                  )
-                  .toList(),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
-  // TAB BUTTON
+  /// ================= UI =================
+
   Widget _tabButton(String title, int index) {
-    final bool isActive = selectedTab == index;
+    final isActive = selectedTab == index;
 
     return Expanded(
       child: GestureDetector(
@@ -160,20 +205,14 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
     );
   }
 
-  // TOP 3 BAR ITEM
-  Widget _buildTopBar({
-    required String team,
-    required int points,
-    required double height,
-    required Color color,
-  }) {
+  Widget _buildTopBar(_LeaderboardItem item, double height, Color color) {
     return Column(
       children: [
         Icon(Icons.emoji_events, size: 32, color: color),
         const SizedBox(height: 6),
         Text(
-          "Tổ $team",
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          item.teamName,
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         Container(
           width: 40,
@@ -184,23 +223,15 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
             borderRadius: BorderRadius.circular(8),
           ),
         ),
-        Text("$points điểm", style: const TextStyle(fontSize: 12)),
+        Text("${item.points} điểm", style: const TextStyle(fontSize: 12)),
       ],
     );
   }
 
-  // TEAM CARD
-  Widget _teamRankCard({
-    required int rank,
-    required String team,
-    required int points,
-    required int done,
-    required int progress,
-    required int late,
-  }) {
-    Color rankColor = rank == 1
+  Widget _teamRankCard(_LeaderboardItem team) {
+    Color rankColor = team.rank == 1
         ? Colors.amber
-        : rank == 2
+        : team.rank == 2
         ? Colors.orange
         : Colors.grey;
 
@@ -214,41 +245,23 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // HEADER
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Icon(Icons.emoji_events, color: rankColor, size: 30),
-                  const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Tổ $team",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      Text(
-                        "Hạng $rank",
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Colors.black54,
-                        ),
-                      ),
-                    ],
+              Icon(Icons.emoji_events, color: rankColor, size: 30),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  team.teamName,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
                   ),
-                ],
+                ),
               ),
-
               Text(
-                "$points Điểm",
+                "${team.points} điểm",
                 style: const TextStyle(
                   color: Colors.blue,
-                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -257,13 +270,12 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
 
           const SizedBox(height: 10),
 
-          // FOOTER STATS
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _statItem(done, "Hoàn thành", Colors.green),
-              _statItem(progress, "Đang làm", Colors.blue),
-              _statItem(late, "Quá hạn", Colors.red),
+              _statItem(team.done, "Hoàn thành", Colors.green),
+              _statItem(team.progress, "Đang làm", Colors.blue),
+              _statItem(team.late, "Quá hạn", Colors.red),
             ],
           ),
         ],
@@ -271,7 +283,6 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
     );
   }
 
-  // STAT ITEM (done / in progress / late)
   Widget _statItem(int num, String label, Color color) {
     return Column(
       children: [
@@ -290,4 +301,22 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
       ],
     );
   }
+}
+
+/// 🔥 VIEW MODEL
+class _LeaderboardItem {
+  int rank = 0;
+  final String teamName;
+  int points;
+  int done;
+  int progress;
+  int late;
+
+  _LeaderboardItem({
+    required this.teamName,
+    required this.points,
+    required this.done,
+    required this.progress,
+    required this.late,
+  });
 }

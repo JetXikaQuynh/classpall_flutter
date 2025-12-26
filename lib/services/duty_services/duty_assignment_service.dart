@@ -41,4 +41,29 @@ class DutyAssignmentService {
   Future<void> createAssignment(DutyAssignmentModel assignment) async {
     await _assignmentRef.add(assignment.toMap());
   }
+
+  /// Lấy assignment theo id
+  Future<DutyAssignmentModel?> getAssignmentById(String id) async {
+    final doc = await _assignmentRef.doc(id).get();
+    if (!doc.exists) return null;
+    return DutyAssignmentModel.fromFirestore(doc);
+  }
+
+  /// Lấy tất cả assignment
+  Future<List<DutyAssignmentModel>> getAllAssignments() async {
+    final snapshot = await _assignmentRef.get();
+
+    return snapshot.docs
+        .map((e) => DutyAssignmentModel.fromFirestore(e))
+        .toList();
+  }
+
+  /// LẮNG NGHE THAY ĐỔI TRONG COLLECTION
+  Stream<List<DutyAssignmentModel>> watchAssignments() {
+    return _assignmentRef.snapshots().map(
+      (snapshot) => snapshot.docs
+          .map((e) => DutyAssignmentModel.fromFirestore(e))
+          .toList(),
+    );
+  }
 }

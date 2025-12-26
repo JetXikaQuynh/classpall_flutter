@@ -40,13 +40,7 @@ class ProgressCard extends StatelessWidget {
 
               /// Nút Tạo mới
               ElevatedButton.icon(
-                onPressed: () {
-                  // GỌI CALLBACK BÊN NGOÀI
-                  onCreate();
-
-                  // HOẶC ĐIỀU HƯỚNG TRỰC TIẾP (nếu muốn)
-                  Navigator.pushNamed(context, AppRoutes.createDuty);
-                },
+                onPressed: onCreate, // CHỈ GỌI CALLBACK
                 icon: const Icon(Icons.add, size: 18),
                 label: const Text("Tạo mới"),
                 style: ElevatedButton.styleFrom(
