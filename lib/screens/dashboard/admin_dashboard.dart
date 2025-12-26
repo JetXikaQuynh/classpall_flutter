@@ -1,7 +1,7 @@
 import 'package:classpall_flutter/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:classpall_flutter/widgets/custom_bottom_bar.dart';
-import 'package:classpall_flutter/routes/app_routes.dart';
+
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -11,7 +11,6 @@ class AdminDashboard extends StatefulWidget {
 }
 
 class _AdminDashboardState extends State<AdminDashboard> {
-  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +34,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
             SizedBox(height: 4),
             Text(
-              'Xin chào, Nguyễn Văn A - Lớp trưởng',
+              'Xin chào, Lớp trưởng',
               style: TextStyle(fontSize: 15, color: Colors.black54),
             ),
           ],

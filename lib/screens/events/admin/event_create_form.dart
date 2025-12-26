@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:classpall_flutter/models/event_models/event_model.dart';
+import 'package:classpall_flutter/services/event_services/event_service.dart';
 import 'event_create_success.dart';
 
 class EventCreateForm extends StatefulWidget {
@@ -45,7 +47,7 @@ class _EventCreateFormState extends State<EventCreateForm> {
     if (picked != null) setState(() => _selectedTime = picked);
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
     if (_selectedDate == null || _selectedTime == null) {
@@ -55,9 +57,32 @@ class _EventCreateFormState extends State<EventCreateForm> {
       return;
     }
 
-    // TODO: gọi backend tạo sự kiện
+    final eventDate = DateTime(
+      _selectedDate!.year,
+      _selectedDate!.month,
+      _selectedDate!.day,
+      _selectedTime!.hour,
+      _selectedTime!.minute,
+    );
 
-    Navigator.pop(context); // Đóng bottom sheet
+    final event = EventModel(
+      title: _titleController.text.trim(),
+      description: _descriptionController.text.trim(),
+      location: _locationController.text.trim(),
+      eventDate: eventDate,
+      isMandatory: _isRequired,
+      status: 'active',
+      totalRegistered: 0,
+      totalClass: 0,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
+    await EventService().createEvent(event);
+
+    if (!mounted) return;
+
+    Navigator.pop(context);
 
     Future.delayed(const Duration(milliseconds: 200), () {
       showDialog(
@@ -83,7 +108,7 @@ class _EventCreateFormState extends State<EventCreateForm> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
+              // ===== HEADER =====
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -106,7 +131,8 @@ class _EventCreateFormState extends State<EventCreateForm> {
                 controller: _titleController,
                 validator: (v) =>
                     v == null || v.isEmpty ? 'Không được bỏ trống' : null,
-                decoration: const InputDecoration(border: OutlineInputBorder()),
+                decoration:
+                    const InputDecoration(border: OutlineInputBorder()),
               ),
 
               const SizedBox(height: 16),
@@ -116,7 +142,8 @@ class _EventCreateFormState extends State<EventCreateForm> {
               TextFormField(
                 controller: _descriptionController,
                 maxLines: 3,
-                decoration: const InputDecoration(border: OutlineInputBorder()),
+                decoration:
+                    const InputDecoration(border: OutlineInputBorder()),
               ),
 
               const SizedBox(height: 16),
@@ -127,7 +154,8 @@ class _EventCreateFormState extends State<EventCreateForm> {
                     child: InkWell(
                       onTap: _pickDate,
                       child: InputDecorator(
-                        decoration: const InputDecoration(labelText: 'Ngày *'),
+                        decoration:
+                            const InputDecoration(labelText: 'Ngày *'),
                         child: Text(
                           _selectedDate == null
                               ? 'Chọn ngày'
@@ -141,7 +169,8 @@ class _EventCreateFormState extends State<EventCreateForm> {
                     child: InkWell(
                       onTap: _pickTime,
                       child: InputDecorator(
-                        decoration: const InputDecoration(labelText: 'Giờ *'),
+                        decoration:
+                            const InputDecoration(labelText: 'Giờ *'),
                         child: Text(
                           _selectedTime == null
                               ? 'Chọn giờ'
@@ -161,7 +190,8 @@ class _EventCreateFormState extends State<EventCreateForm> {
                 controller: _locationController,
                 validator: (v) =>
                     v == null || v.isEmpty ? 'Không được bỏ trống' : null,
-                decoration: const InputDecoration(border: OutlineInputBorder()),
+                decoration:
+                    const InputDecoration(border: OutlineInputBorder()),
               ),
 
               const SizedBox(height: 16),
@@ -180,12 +210,6 @@ class _EventCreateFormState extends State<EventCreateForm> {
                 child: ElevatedButton(
                   onPressed: _submit,
                   child: const Text('Tạo sự kiện'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
                 ),
               ),
             ],

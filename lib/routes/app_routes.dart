@@ -31,7 +31,6 @@ class AppRoutes {
 
   // Member
   static const memberEventList = '/member-event-list';
-  static const memberEventDetail = '/member-event-detail';
 
   // ============== Fund ================
   static const fund = '/fund';
