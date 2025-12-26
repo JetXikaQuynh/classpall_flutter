@@ -6,6 +6,8 @@ import 'package:classpall_flutter/models/event_models/event_model.dart';
 import 'package:classpall_flutter/services/auth_service.dart'; 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:classpall_flutter/services/event_services/event_export_service.dart';
+import 'package:classpall_flutter/services/notification_service.dart'; 
+
 
 
 class EventDetailPage extends StatefulWidget {
@@ -39,11 +41,35 @@ void _exportCsv(BuildContext context, String eventId) async {
 }
 
 
-  void _sendReminder(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Đã gửi nhắc nhở tới sinh viên chưa đăng ký')),
+void _sendReminder(EventModel event) async {
+  final users = await FirebaseFirestore.instance.collection('users').get();
+  final regs = await FirebaseFirestore.instance
+      .collection('event_registrations')
+      .where('event_id', isEqualTo: event.id)
+      .get();
+
+  final registered = regs.docs
+      .map((e) => (e.data() as Map)['user_id'])
+      .toSet();
+
+  final targets = users.docs.where((u) => !registered.contains(u.id));
+
+  for (final user in targets) {
+    await NotificationService.instance.sendNotification(
+      userId: user.id,
+      title: 'Nhắc nhở sự kiện',
+      body: 'Vui lòng phản hồi sự kiện "${event.title}"',
+      type: 'event',
+      targetId: event.id,
     );
   }
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('Đã gửi nhắc nhở')),
+  );
+}
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -203,7 +229,7 @@ void _exportCsv(BuildContext context, String eventId) async {
                             icon: const Icon(Icons.notifications_active),
                             label: const Text('Gửi nhắc nhở'),
                             style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-                            onPressed: () => _sendReminder(context),
+                            onPressed: () => _sendReminder(event),
                           ),
                         ),
 
