@@ -39,6 +39,9 @@ dependencies:
   cloud_firestore: ^6.1.1
   provider: ^6.1.5+1
 
+  file_saver: ^0.2.12
+  csv: ^5.0.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

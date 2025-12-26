@@ -6,8 +6,10 @@ class AuthService {
   static final FirebaseAuth _auth = FirebaseAuth.instance;
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  //  ValueNotifier 
-  static final ValueNotifier<bool?> isAdminNotifier = ValueNotifier<bool?>(null);
+  //  ValueNotifier
+  static final ValueNotifier<bool?> isAdminNotifier = ValueNotifier<bool?>(
+    null,
+  );
 
   // Getter tiện lợi
   static bool get isAdmin => isAdminNotifier.value ?? false;
@@ -16,7 +18,7 @@ class AuthService {
   // User hiện tại
   static User? get currentUser => _auth.currentUser;
 
-  // Stream auth state 
+  // Stream auth state
   static Stream<User?> get authStateChanges => _auth.authStateChanges();
 
   // === Hàm đăng nhập ===
@@ -54,13 +56,17 @@ class AuthService {
     }
   }
 
-  
   static Future<void> initialize() async {
     if (currentUser != null) {
       await _loadUserRole();
     }
   }
 
+  // Trong AuthService
+static Future<int> getTotalMembers() async {
+  final snap = await FirebaseFirestore.instance.collection('users').get();
+  return snap.size;
+}
 
   static Future<void> signOut() async {
     await _auth.signOut();
