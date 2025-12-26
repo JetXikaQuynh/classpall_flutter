@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class RotationHistoryItem extends StatelessWidget {
   final int week;
-  final int team;
+  final String team;
   final String status;
   final bool isCurrent;
 
@@ -63,7 +63,7 @@ class RotationHistoryItem extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    "Tổ $team",
+                    "$team",
                     style: const TextStyle(fontSize: 13, color: Colors.black54),
                   ),
                 ],

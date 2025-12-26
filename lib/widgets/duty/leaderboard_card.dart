@@ -64,7 +64,7 @@ class LeaderboardCard extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        "Tổ ${team['name']}",
+                        "${team['name']}",
                         style: const TextStyle(fontSize: 16),
                       ),
                     ),
