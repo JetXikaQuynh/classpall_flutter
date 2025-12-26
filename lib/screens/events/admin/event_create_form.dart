@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:classpall_flutter/models/event_models/event_model.dart';
 import 'package:classpall_flutter/services/event_services/event_service.dart';
 import 'event_create_success.dart';
+import 'package:classpall_flutter/services/notification_service.dart';
 
 class EventCreateForm extends StatefulWidget {
   const EventCreateForm({super.key});
@@ -78,7 +79,12 @@ class _EventCreateFormState extends State<EventCreateForm> {
       updatedAt: DateTime.now(),
     );
 
-    await EventService().createEvent(event);
+    final eventId = await EventService().createEvent(event);
+
+    await NotificationService.instance.notifyNewEvent(
+      eventId: eventId,
+      eventTitle: event.title,
+    );
 
     if (!mounted) return;
 
@@ -131,8 +137,7 @@ class _EventCreateFormState extends State<EventCreateForm> {
                 controller: _titleController,
                 validator: (v) =>
                     v == null || v.isEmpty ? 'Không được bỏ trống' : null,
-                decoration:
-                    const InputDecoration(border: OutlineInputBorder()),
+                decoration: const InputDecoration(border: OutlineInputBorder()),
               ),
 
               const SizedBox(height: 16),
@@ -142,8 +147,7 @@ class _EventCreateFormState extends State<EventCreateForm> {
               TextFormField(
                 controller: _descriptionController,
                 maxLines: 3,
-                decoration:
-                    const InputDecoration(border: OutlineInputBorder()),
+                decoration: const InputDecoration(border: OutlineInputBorder()),
               ),
 
               const SizedBox(height: 16),
@@ -154,8 +158,7 @@ class _EventCreateFormState extends State<EventCreateForm> {
                     child: InkWell(
                       onTap: _pickDate,
                       child: InputDecorator(
-                        decoration:
-                            const InputDecoration(labelText: 'Ngày *'),
+                        decoration: const InputDecoration(labelText: 'Ngày *'),
                         child: Text(
                           _selectedDate == null
                               ? 'Chọn ngày'
@@ -169,8 +172,7 @@ class _EventCreateFormState extends State<EventCreateForm> {
                     child: InkWell(
                       onTap: _pickTime,
                       child: InputDecorator(
-                        decoration:
-                            const InputDecoration(labelText: 'Giờ *'),
+                        decoration: const InputDecoration(labelText: 'Giờ *'),
                         child: Text(
                           _selectedTime == null
                               ? 'Chọn giờ'
@@ -190,8 +192,7 @@ class _EventCreateFormState extends State<EventCreateForm> {
                 controller: _locationController,
                 validator: (v) =>
                     v == null || v.isEmpty ? 'Không được bỏ trống' : null,
-                decoration:
-                    const InputDecoration(border: OutlineInputBorder()),
+                decoration: const InputDecoration(border: OutlineInputBorder()),
               ),
 
               const SizedBox(height: 16),

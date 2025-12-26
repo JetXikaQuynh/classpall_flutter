@@ -18,9 +18,11 @@ class EventService {
     return EventModel.fromFirestore(doc);
   }
 
-  Future<void> createEvent(EventModel event) async {
-    await _db.collection('events').add(event.toMap());
-  }
+Future<String> createEvent(EventModel event) async {
+  final docRef = await _db.collection('events').add(event.toMap());
+  return docRef.id; 
+}
+
 
   Future<void> updateRegisteredCount(String eventId, int value) async {
     await _db.collection('events').doc(eventId).update({
