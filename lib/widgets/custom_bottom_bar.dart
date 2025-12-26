@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import '../routes/app_routes.dart';
-import '../services/auth_service.dart'; 
+import '../services/auth_service.dart';
 
 class CustomBottomBar extends StatelessWidget {
   final int currentIndex;
@@ -9,12 +12,11 @@ class CustomBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // === Bọc toàn bộ build trong ValueListenableBuilder để lắng nghe role ===
     return ValueListenableBuilder<bool?>(
       valueListenable: AuthService.isAdminNotifier,
       builder: (context, isAdmin, child) {
         if (isAdmin == null) {
-          return const SizedBox(height: 70); // tránh layout nhảy khi chưa tải role
+          return const SizedBox(height: 70);
         }
 
         final String homeRoute = isAdmin
@@ -26,22 +28,32 @@ class CustomBottomBar extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             boxShadow: [
-              BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5),
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 5,
+              ),
             ],
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildIcon(context, Icons.home_outlined, 0, homeRoute),
               _buildIcon(
                 context,
-                Icons.notifications_outlined,
+                const Icon(Icons.home_outlined, size: 32),
+                0,
+                homeRoute,
+              ),
+
+              _buildIcon(
+                context,
+                const NotificationBottomIcon(),
                 1,
                 AppRoutes.notification,
               ),
+
               _buildIcon(
                 context,
-                Icons.person_outline,
+                const Icon(Icons.person_outline, size: 32),
                 2,
                 AppRoutes.personalProfile,
               ),
@@ -54,48 +66,91 @@ class CustomBottomBar extends StatelessWidget {
 
   Widget _buildIcon(
     BuildContext context,
-    IconData icon,
+    Widget iconWidget,
     int index,
-    String route, {
-    int badge = 0,
-  }) {
+    String route,
+  ) {
+    final color = currentIndex == index ? Colors.blue : Colors.grey;
+
     return GestureDetector(
       onTap: () {
         if (currentIndex != index) {
-          // === Dùng pushNamedAndRemoveUntil để reset stack về dashboard đúng role ===
           Navigator.pushNamedAndRemoveUntil(
             context,
             route,
-            ModalRoute.withName(AuthService.isAdmin ? AppRoutes.adminDashboard : AppRoutes.memberDashboard),
+            ModalRoute.withName(
+              AuthService.isAdmin
+                  ? AppRoutes.adminDashboard
+                  : AppRoutes.memberDashboard,
+            ),
           );
         }
       },
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Icon(
-            icon,
-            size: 32,
-            color: currentIndex == index ? Colors.blue : Colors.grey,
-          ),
-          if (badge > 0)
-            Positioned(
-              right: -6,
-              top: -4,
-              child: Container(
-                padding: const EdgeInsets.all(3),
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
-                ),
-                child: Text(
-                  "$badge",
-                  style: const TextStyle(color: Colors.white, fontSize: 10),
+      child: IconTheme(
+        data: IconThemeData(color: color),
+        child: iconWidget,
+      ),
+    );
+  }
+}
+
+/// ===============================
+/// ICON THÔNG BÁO + BADGE CHƯA ĐỌC
+/// ===============================
+class NotificationBottomIcon extends StatelessWidget {
+  const NotificationBottomIcon({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      return const Icon(Icons.notifications_outlined, size: 32);
+    }
+
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('notifications')
+          .where('user_id', isEqualTo: user.uid)
+          .where('is_read', isEqualTo: false)
+          .snapshots(),
+      builder: (context, snapshot) {
+        final unreadCount = snapshot.data?.docs.length ?? 0;
+
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            const Icon(Icons.notifications_outlined, size: 32),
+
+            if (unreadCount > 0)
+              Positioned(
+                right: -6,
+                top: -4,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  constraints: const BoxConstraints(
+                    minWidth: 18,
+                    minHeight: 18,
+                  ),
+                  decoration: const BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      unreadCount > 9 ? '9+' : '$unreadCount',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 }
