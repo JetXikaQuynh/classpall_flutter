@@ -22,7 +22,6 @@ class NotificationService {
       'target_id': targetId,
       'is_read': false,
 
-   
       'sent_at': Timestamp.now(),
     });
   }
@@ -33,6 +32,27 @@ class NotificationService {
         .collection('notifications')
         .where('user_id', isEqualTo: uid)
         .snapshots();
+  }
+
+
+///New event
+  Future<void> notifyNewEvent({
+    required String eventId,
+    required String eventTitle,
+  }) async {
+    final users = await _db.collection('users').get();
+
+    for (final user in users.docs) {
+      await _db.collection('notifications').add({
+        'user_id': user.id,
+        'title': 'Sự kiện mới',
+        'body': 'Có sự kiện mới: $eventTitle',
+        'type': 'event',
+        'target_id': eventId,
+        'is_read': false,
+        'sent_at': Timestamp.now(),
+      });
+    }
   }
 
   /// MARK READ

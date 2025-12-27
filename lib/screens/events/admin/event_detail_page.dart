@@ -7,6 +7,8 @@ import 'package:classpall_flutter/services/auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:classpall_flutter/services/event_services/event_export_service.dart';
 import 'package:classpall_flutter/services/notification_service.dart'; 
+import 'package:classpall_flutter/widgets/custom_bottom_bar.dart';
+
 
 
 
@@ -76,6 +78,7 @@ void _sendReminder(EventModel event) async {
     final String eventId = ModalRoute.of(context)?.settings.arguments as String? ?? 'hardcode_event_id_for_test';
 
     return Scaffold(
+      bottomNavigationBar: const CustomBottomBar(currentIndex: 1),
       backgroundColor: Colors.blue.shade50,
       appBar: AppBar(
         title: const Text('Chi tiết Sự kiện'),
@@ -423,6 +426,7 @@ class _StudentList extends StatelessWidget {
           );
         },
       );
+      
     }
   }
 }
