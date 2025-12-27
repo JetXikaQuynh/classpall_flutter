@@ -20,7 +20,7 @@ class EventExportService {
 
       // 2. Header CSV
       final rows = <List<String>>[
-        ['STT', 'Họ tên', 'Email', 'Lớp'],
+        ['STT', 'Ho ten', 'Email', 'Lop'],
       ];
 
       int index = 1;

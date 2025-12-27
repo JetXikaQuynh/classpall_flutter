@@ -31,7 +31,7 @@ class EventListPage extends StatelessWidget {
         leading: const BackButton(),
         title: const Text('Quản lý Sự kiện'),
       ),
-      bottomNavigationBar: const CustomBottomBar(currentIndex: 1),
+      bottomNavigationBar: const CustomBottomBar(currentIndex: 0),
       body: SafeArea(
         child: Column(
           children: [
