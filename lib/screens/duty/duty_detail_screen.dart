@@ -59,7 +59,7 @@ class _DutyDetailScreenState extends State<DutyDetailScreen> {
     // 3️⃣ Team
     final team = await _teamService.getTeamById(assignment.teamId);
 
-    // 4️⃣ Users trong team (🔥 DÙNG SERVICE CỦA BẠN)
+    // 4️⃣ Users trong team
     final members = await _userService.getUsersByTeam(assignment.teamId);
 
     setState(() {
@@ -77,6 +77,27 @@ class _DutyDetailScreenState extends State<DutyDetailScreen> {
     _loadDetail(_assignment!.id);
   }
 
+  bool _isEndOfWeek(DutyAssignmentModel assignment) {
+    final now = DateTime.now();
+
+    // Chỉ CHỦ NHẬT mới được coi là cuối tuần (để tổ trưởng bấm "Đã hoàn thành").
+    final isSunday = now.weekday == DateTime.sunday;
+
+    return isSunday;
+  }
+
+  /// ISO week number
+  int _weekNumber(DateTime date) {
+    final firstDayOfYear = DateTime(date.year, 1, 1);
+    final daysOffset = firstDayOfYear.weekday == DateTime.monday
+        ? 0
+        : 8 - firstDayOfYear.weekday;
+
+    final firstMonday = firstDayOfYear.add(Duration(days: daysOffset));
+
+    return ((date.difference(firstMonday).inDays) / 7).floor() + 1;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_loading) {
@@ -90,7 +111,20 @@ class _DutyDetailScreenState extends State<DutyDetailScreen> {
     }
 
     final isAdmin = AuthService.isAdmin;
-    final isLeader = _members.any((u) => u.isLeader);
+
+    UserModel? currentUser;
+    try {
+      currentUser = _members.firstWhere(
+        (u) => u.id == AuthService.currentUserId,
+      );
+    } catch (e) {
+      // ignore: avoid_print
+      print('DutyDetail: current user not in team members: $e');
+      currentUser = null;
+    }
+
+    final isLeader = currentUser?.isLeader ?? false;
+    final isEndOfWeek = _isEndOfWeek(_assignment!);
 
     return Scaffold(
       backgroundColor: Colors.blue.shade50,
@@ -201,11 +235,11 @@ class _DutyDetailScreenState extends State<DutyDetailScreen> {
 
   //BOTTOM ACTION BUTTON
   Widget? _buildBottomButton(bool isAdmin, bool isLeader, String status) {
-    // MEMBER
+    // MEMBER thường → không có nút
     if (!isAdmin && !isLeader) return null;
 
-    // LEADER -> DONE
-    if (isLeader && status == 'inprogress') {
+    // LEADER: chỉ CUỐI TUẦN + inprogress
+    if (isLeader && status == 'inprogress' && _isEndOfWeek(_assignment!)) {
       return _buildButton(
         "Đã hoàn thành",
         Colors.blue,
@@ -213,7 +247,7 @@ class _DutyDetailScreenState extends State<DutyDetailScreen> {
       );
     }
 
-    // ADMIN -> CONFIRM
+    // ADMIN xác nhận
     if (isAdmin && status == 'pending_approval') {
       return _buildButton("Xác nhận hoàn thành", Colors.green, () async {
         final confirm = await ConfirmCompleteDialog.show(

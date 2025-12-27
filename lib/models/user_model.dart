@@ -24,17 +24,29 @@ class UserModel {
   });
 
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+    final data = (doc.data() ?? {}) as Map<String, dynamic>;
+
+    String _asString(dynamic v) => v == null ? '' : v.toString();
+    bool _asBool(dynamic v) {
+      if (v is bool) return v;
+      if (v is num) return v != 0;
+      if (v is String) {
+        final lower = v.toLowerCase();
+        return lower == 'true' || lower == '1' || lower == 'yes';
+      }
+      return false;
+    }
+
     return UserModel(
       id: doc.id,
-      fullName: data['fullname'],
-      email: data['email'],
-      phone: data['phone'],
-      avatar: data['avatar'],
-      className: data['classname'],
-      teamId: data['id_team'],
-      isLeader: data['is_leader'],
-      role: data['role'],
+      fullName: _asString(data['fullname']),
+      email: _asString(data['email']),
+      phone: _asString(data['phone']),
+      avatar: _asString(data['avatar']),
+      className: _asString(data['classname']),
+      teamId: _asString(data['id_team']),
+      isLeader: _asBool(data['is_leader']),
+      role: _asBool(data['role']),
     );
   }
 

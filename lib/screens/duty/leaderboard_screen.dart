@@ -135,25 +135,55 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
 
                   const SizedBox(height: 20),
 
-                  /// 🔥 TOP 3
+                  /// 🔥 TOP 3 (chiều cao thay đổi theo tổng điểm)
                   if (_leaderboard.length >= 3)
-                    Center(
-                      child: SizedBox(
-                        width: 260,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            _buildTopBar(
-                              _leaderboard[1],
-                              80,
-                              const Color.fromARGB(255, 228, 173, 97),
+                    Builder(
+                      builder: (context) {
+                        final top3 = _leaderboard.take(3).toList();
+
+                        // tính max point để scale chiều cao
+                        final maxPoints = top3
+                            .map((e) => e.points)
+                            .fold<int>(0, (prev, p) => p > prev ? p : prev);
+
+                        const double maxBarHeight = 140;
+                        const double minBarHeight = 40;
+
+                        double heightFor(int points) {
+                          if (maxPoints == 0)
+                            return (minBarHeight + maxBarHeight) / 2;
+                          final ratio = points / maxPoints;
+                          return minBarHeight +
+                              (maxBarHeight - minBarHeight) * ratio;
+                        }
+
+                        return Center(
+                          child: SizedBox(
+                            width: 260,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                _buildTopBar(
+                                  top3[1],
+                                  heightFor(top3[1].points),
+                                  const Color.fromARGB(255, 228, 173, 97),
+                                ),
+                                _buildTopBar(
+                                  top3[0],
+                                  heightFor(top3[0].points),
+                                  Colors.amber,
+                                ),
+                                _buildTopBar(
+                                  top3[2],
+                                  heightFor(top3[2].points),
+                                  Colors.grey,
+                                ),
+                              ],
                             ),
-                            _buildTopBar(_leaderboard[0], 120, Colors.amber),
-                            _buildTopBar(_leaderboard[2], 50, Colors.grey),
-                          ],
-                        ),
-                      ),
+                          ),
+                        );
+                      },
                     ),
 
                   const SizedBox(height: 30),
