@@ -12,9 +12,15 @@ class UserService {
 
   /// Lấy user theo id
   Future<UserModel?> getUserById(String userId) async {
-    final doc = await _userRef.doc(userId).get();
-    if (!doc.exists) return null;
-    return UserModel.fromFirestore(doc);
+    try {
+      final doc = await _userRef.doc(userId).get();
+      if (!doc.exists) return null;
+      return UserModel.fromFirestore(doc);
+    } catch (e, st) {
+      // ignore: avoid_print
+      print('Error in UserService.getUserById for id=$userId: $e\n$st');
+      return null;
+    }
   }
 
   /// Lấy user theo team

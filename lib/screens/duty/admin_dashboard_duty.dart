@@ -38,6 +38,7 @@ class _AdminDashboardDutyState extends State<AdminDashboardDuty> {
   void initState() {
     super.initState();
     _loadStaticData();
+    _assignmentService.autoMarkLateAssignments();
   }
 
   /// 🔥 load duties + teams 1 lần

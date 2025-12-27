@@ -17,6 +17,7 @@ class AuthService {
 
   // User hiện tại
   static User? get currentUser => _auth.currentUser;
+  static String? get currentUserId => _auth.currentUser?.uid;
 
   // Stream auth state
   static Stream<User?> get authStateChanges => _auth.authStateChanges();
@@ -63,10 +64,10 @@ class AuthService {
   }
 
   // Trong AuthService
-static Future<int> getTotalMembers() async {
-  final snap = await FirebaseFirestore.instance.collection('users').get();
-  return snap.size;
-}
+  static Future<int> getTotalMembers() async {
+    final snap = await FirebaseFirestore.instance.collection('users').get();
+    return snap.size;
+  }
 
   static Future<void> signOut() async {
     await _auth.signOut();
