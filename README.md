@@ -1,6 +1,9 @@
 # classpall_flutter
 
-A new Flutter project.
+"Lớp Trưởng 4.0" là một ứng dụng di động/web được thiết kế để "giải cứu" lớp trưởng và ban cán sự (BCS) khỏi gánh nặng hành chính sự vụ. Hiện tại, mọi thông tin và trách nhiệm đều đổ dồn về một người (lớp trưởng), gây quá tải, chậm trễ, và thiếu minh bạch.
+Ứng dụng này là một "Phòng điều hành Lớp học" số hóa, giúp tự động hóa việc phân công (trực nhật), theo dõi tài sản (mượn/trả đồ), điểm danh sự kiện, và quản lý quỹ lớp một cách minh bạch, công bằng.
+
+Ứng dụng sử dụng dịch vụ lưu trữ ảnh bên thứ ba (Cloudinary) để quản lý avatar người dùng, giúp giảm chi phí vận hành và không phụ thuộc vào Firebase Storage.”
 
 ## Getting Started
 

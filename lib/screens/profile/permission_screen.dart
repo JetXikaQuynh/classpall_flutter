@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:classpall_flutter/widgets/profile/user_item.dart';
+import '../../services/user_service.dart';
+import '../../models/user_model.dart';
 import 'add_team_dialog.dart';
 import 'delete_team_dialog.dart';
 
@@ -11,34 +13,68 @@ class PermissionScreen extends StatefulWidget {
 }
 
 class _PermissionScreenState extends State<PermissionScreen> {
-  // danh sách user tĩnh mẫu
-  final List<Map<String, dynamic>> users = [
-    {"name": "Nguyễn Văn A", "team": "Tổ 1", "role": "Thành viên"},
-    {"name": "Nguyễn Thị N", "team": "Tổ 1", "role": "Admin"},
-    {"name": "Đỗ Thị C", "team": "Tổ 1", "role": "Thành viên"},
-    {"name": "Nguyễn Văn A", "team": "Tổ 1", "role": "Admin"},
-    {"name": "Nguyễn Văn A", "team": "Tổ 1", "role": "Thành viên"},
-    {"name": "Nguyễn Văn A", "team": "Tổ 1", "role": "Thành viên"},
-    {"name": "Đỗ Thị C", "team": "Tổ 1", "role": "Thành viên"},
-    {"name": "Nguyễn Văn A", "team": "Tổ 1", "role": "Admin"},
-    {"name": "Nguyễn Văn A", "team": "Tổ 1", "role": "Thành viên"},
-    {"name": "Nguyễn Văn A", "team": "Tổ 1", "role": "Thành viên"},
-  ];
+  final _userService = UserService();
 
-  String selectedFilter = "Tất cả"; // Tổ đang chọn
-  String? selectedLeader; // Tổ trưởng đang chọn
+  String selectedFilter = "Tất cả";
+  String? selectedLeader;
+  String _search = '';
 
-  List<String> filters = ["Tất cả", "Tổ 1", "Tổ 2", "Tổ 3"];
-  List<String> teamOptions = ["Tổ 1", "Tổ 2", "Tổ 3"];
-  List<String> roleOptions = ["Thành viên", "Admin"];
+  List<String> filters = ["Tất cả"];
+  List<String> teamOptions = [];
+  final List<String> roleOptions = ["Thành viên", "Admin"];
+
+  List<UserModel> _filteredUsers = [];
+
+  // ===== FILTER =====
+  void _applyFilters(List<UserModel> users) {
+    List<UserModel> list = List.from(users);
+
+    if (selectedFilter != "Tất cả") {
+      list = list.where((u) => u.teamId == selectedFilter).toList();
+    }
+
+    if (_search.isNotEmpty) {
+      final q = _search.toLowerCase();
+      list = list.where((u) {
+        return u.fullName.toLowerCase().contains(q) ||
+            u.email.toLowerCase().contains(q);
+      }).toList();
+    }
+
+    _filteredUsers = list;
+  }
+
+  // ===== SET LEADER =====
+  Future<void> _setTeamLeader(
+    List<UserModel> users,
+    String teamId,
+    String userId,
+  ) async {
+    try {
+      final previousLeaders = users.where(
+        (u) => u.teamId == teamId && u.isLeader,
+      );
+
+      for (final p in previousLeaders) {
+        if (p.id != userId) {
+          await _userService.setLeader(p.id, false);
+        }
+      }
+
+      await _userService.setLeader(userId, true);
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Đã cập nhật tổ trưởng')));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Không thể cập nhật tổ trưởng: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Lọc danh sách user theo tổ
-    final filteredUsers = selectedFilter == "Tất cả"
-        ? users
-        : users.where((u) => u["team"] == selectedFilter).toList();
-
     return Scaffold(
       backgroundColor: Colors.blue.shade50,
       appBar: AppBar(
@@ -57,240 +93,247 @@ class _PermissionScreenState extends State<PermissionScreen> {
             fontSize: 20,
           ),
         ),
-        actions: const [SizedBox(width: 10)],
       ),
 
-      body: Column(
-        children: [
-          /// Thanh tìm kiếm
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const TextField(
-              decoration: InputDecoration(
-                contentPadding: EdgeInsets.symmetric(vertical: 15),
-                border: InputBorder.none,
-                prefixIcon: Icon(Icons.search),
-                hintText: "Tìm kiếm thành viên...",
-              ),
-            ),
-          ),
+      // ================= STREAM =================
+      body: StreamBuilder<List<UserModel>>(
+        stream: _userService.streamAllUsers(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-          /// Thống kê
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-            child: Row(
-              children: [
-                Text(
-                  "68 thành viên  •  2 admin  •  3 tổ",
-                  style: TextStyle(fontSize: 14),
+          final users = snapshot.data!
+            ..sort((a, b) => a.fullName.compareTo(b.fullName));
+
+          // ===== BUILD TEAM LIST =====
+          final teamSet = <String>{};
+          for (final u in users) {
+            if (u.teamId.isNotEmpty) teamSet.add(u.teamId);
+          }
+          teamOptions = teamSet.toList()..sort();
+          filters = ["Tất cả", ...teamOptions];
+
+          _applyFilters(users);
+
+          return Column(
+            children: [
+              /// SEARCH
+              Container(
+                margin: const EdgeInsets.symmetric(
+                  horizontal: 15,
+                  vertical: 10,
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-
-          /// Nút thêm tổ + lưu
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: Row(
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () {
-                    AddTeamDialog.show(context);
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: TextField(
+                  decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(vertical: 15),
+                    border: InputBorder.none,
+                    prefixIcon: Icon(Icons.search),
+                    hintText: "Tìm kiếm thành viên...",
+                  ),
+                  onChanged: (v) {
+                    setState(() => _search = v);
                   },
-                  icon: const Icon(Icons.add, size: 18, color: Colors.white),
-                  label: const Text(
-                    "Thêm tổ",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromARGB(255, 0, 68, 185),
-                  ),
                 ),
+              ),
 
-                const Spacer(),
-                ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.save, size: 18, color: Colors.white),
-                  label: const Text(
-                    "Lưu",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromARGB(255, 0, 68, 185),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
+              /// STATS
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 4,
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      "${users.length} thành viên  •  "
+                      "${users.where((u) => u.role).length} admin  •  "
+                      "${teamOptions.length} tổ",
+                      style: const TextStyle(fontSize: 14),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              ),
 
-          const SizedBox(height: 15),
+              const SizedBox(height: 10),
 
-          /// Tabs lọc tổ
-          SizedBox(
-            height: 42,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 15),
-              children: filters.map((teamName) {
-                final bool isActive = teamName == selectedFilter;
-
-                int count;
-                switch (teamName) {
-                  case "Tổ 1":
-                    count = 20;
-                    break;
-                  case "Tổ 2":
-                    count = 20;
-                    break;
-                  case "Tổ 3":
-                    count = 30;
-                    break;
-                  default:
-                    count = users.length;
-                }
-
-                return Container(
-                  margin: const EdgeInsets.only(right: 8),
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        selectedFilter = teamName;
-                        selectedLeader = null; // reset khi đổi tổ
-                      });
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 8,
+              /// BUTTONS
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                child: Row(
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () => AddTeamDialog.show(context),
+                      icon: const Icon(Icons.add, size: 18),
+                      label: const Text("Thêm tổ"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 0, 68, 185),
                       ),
-                      decoration: BoxDecoration(
-                        color: isActive ? Colors.blue.shade100 : Colors.white,
-                        borderRadius: BorderRadius.circular(25),
-                        border: Border.all(
-                          color: isActive ? Colors.blue : Colors.grey.shade400,
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              /// FILTER TABS
+              SizedBox(
+                height: 42,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  children: filters.map((teamName) {
+                    final isActive = teamName == selectedFilter;
+                    final count = teamName == 'Tất cả'
+                        ? users.length
+                        : users.where((u) => u.teamId == teamName).length;
+
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          selectedFilter = teamName;
+                          selectedLeader = null;
+                        });
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.only(right: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
                         ),
-                      ),
-                      child: Row(
-                        children: [
-                          Text(
-                            "$teamName ($count)",
-                            style: TextStyle(
-                              color: isActive
-                                  ? Colors.blue.shade700
-                                  : Colors.black87,
-                              fontWeight: FontWeight.w600,
-                            ),
+                        decoration: BoxDecoration(
+                          color: isActive ? Colors.blue.shade100 : Colors.white,
+                          borderRadius: BorderRadius.circular(25),
+                          border: Border.all(
+                            color: isActive
+                                ? Colors.blue
+                                : Colors.grey.shade400,
                           ),
-                          if (teamName != "Tất cả") ...[
-                            const SizedBox(width: 4),
-                            GestureDetector(
-                              onTap: () async {
-                                final confirm = await DeleteTeamDialog.show(
-                                  context,
-                                  teamName,
-                                );
-
-                                if (confirm == true) {
-                                  setState(() {
-                                    filters.remove(teamName);
-                                    teamOptions.remove(teamName);
-                                  });
-                                }
-                              },
-                              child: const Icon(
-                                Icons.close,
-                                color: Colors.red,
-                                size: 18,
+                        ),
+                        child: Row(
+                          children: [
+                            Text(
+                              "$teamName ($count)",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: isActive
+                                    ? Colors.blue.shade700
+                                    : Colors.black87,
                               ),
                             ),
+                            if (teamName != "Tất cả") ...[
+                              const SizedBox(width: 4),
+                              GestureDetector(
+                                onTap: () async {
+                                  final confirm = await DeleteTeamDialog.show(
+                                    context,
+                                    teamName,
+                                  );
+                                  if (confirm == true) {
+                                    for (final u in users.where(
+                                      (u) => u.teamId == teamName,
+                                    )) {
+                                      await _userService.updateUserTeam(
+                                        u.id,
+                                        '',
+                                      );
+                                    }
+                                  }
+                                },
+                                child: const Icon(
+                                  Icons.close,
+                                  color: Colors.red,
+                                  size: 18,
+                                ),
+                              ),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-
-          const SizedBox(height: 10),
-
-          ///SELECT TỔ TRƯỞNG (CHỈ HIỆN KHI CHỌN TỔ)
-          if (selectedFilter != "Tất cả")
-            Container(
-              height: 50,
-              margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.yellow.shade100,
-                borderRadius: BorderRadius.circular(10),
+                    );
+                  }).toList(),
+                ),
               ),
-              child: Row(
-                children: [
-                  Icon(Icons.workspace_premium, color: Colors.amber.shade800),
-                  const SizedBox(width: 10),
-                  const Text(
-                    "Chọn tổ trưởng:",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
-                  ),
-                  const SizedBox(width: 20),
 
-                  DropdownButton<String>(
-                    value: selectedLeader,
-                    hint: const Text("Chọn tên"),
-                    items: users
-                        .where((u) => u["team"] == selectedFilter)
-                        .map<DropdownMenuItem<String>>((u) {
-                          return DropdownMenuItem<String>(
-                            value: u["name"] as String,
-                            child: Text(u["name"] as String),
-                          );
-                        })
-                        .toList(),
-                    onChanged: (value) {
-                      setState(() => selectedLeader = value);
-                    },
+              /// SELECT LEADER
+              if (selectedFilter != "Tất cả")
+                Container(
+                  margin: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.yellow.shade100,
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                ],
+                  child: Row(
+                    children: [
+                      const Icon(Icons.workspace_premium, color: Colors.orange),
+                      const SizedBox(width: 10),
+                      const Text(
+                        "Chọn tổ trưởng:",
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(width: 10),
+                      DropdownButton<String>(
+                        value: selectedLeader,
+                        hint: const Text("Chọn"),
+                        items: users
+                            .where((u) => u.teamId == selectedFilter)
+                            .map(
+                              (u) => DropdownMenuItem(
+                                value: u.id,
+                                child: Text(u.fullName),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() => selectedLeader = value);
+                            _setTeamLeader(users, selectedFilter, value);
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+
+              /// USER LIST
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.only(bottom: 70),
+                  itemCount: _filteredUsers.length,
+                  itemBuilder: (context, index) {
+                    final user = _filteredUsers[index];
+
+                    return UserItem(
+                      user: {
+                        'id': user.id,
+                        'name': user.fullName,
+                        'team': user.teamId.isEmpty ? 'Chưa có' : user.teamId,
+                        'role': user.role ? 'Admin' : 'Thành viên',
+                      },
+                      teamOptions: ['Chưa có', ...teamOptions],
+                      roleOptions: roleOptions,
+                      onTeamChanged: (value) async {
+                        await _userService.updateUserTeam(
+                          user.id,
+                          value == 'Chưa có' ? '' : value!,
+                        );
+                      },
+                      onRoleChanged: (value) async {
+                        await _userService.setRole(user.id, value == 'Admin');
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
-
-          /// DANH SÁCH USER
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.only(bottom: 70),
-              itemCount: filteredUsers.length,
-              itemBuilder: (context, index) {
-                final user = filteredUsers[index];
-                return UserItem(
-                  user: user,
-                  teamOptions: teamOptions,
-                  roleOptions: roleOptions,
-                  onTeamChanged: (value) {
-                    setState(() {
-                      user["team"] = value!;
-                    });
-                  },
-                  onRoleChanged: (value) {
-                    setState(() {
-                      user["role"] = value!;
-                    });
-                  },
-                );
-              },
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
