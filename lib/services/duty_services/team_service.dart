@@ -3,6 +3,7 @@ import '../../models/duty_models/team_model.dart';
 
 class TeamService {
   final _teamRef = FirebaseFirestore.instance.collection('teams');
+  final _userRef = FirebaseFirestore.instance.collection('users');
 
   /// Lấy tất cả tổ
   Future<List<TeamModel>> getAllTeams() async {
@@ -32,5 +33,36 @@ class TeamService {
   /// Xóa tổ
   Future<void> deleteTeam(String teamId) async {
     await _teamRef.doc(teamId).delete();
+  }
+
+  /// Tạo tổ mới và cập nhật người dùng
+  Future<void> createTeam({
+    required String teamId, // vd: team04
+    required List<String> userIds,
+  }) async {
+    final batch = FirebaseFirestore.instance.batch();
+
+    // 1. create team
+    final teamDoc = _teamRef.doc(teamId);
+    batch.set(teamDoc, {
+      'name_team': teamId,
+      'id_leader': '',
+      'id_user': userIds,
+    });
+
+    // 2. update users
+    for (final uid in userIds) {
+      batch.update(_userRef.doc(uid), {'id_team': teamId, 'is_leader': false});
+    }
+
+    await batch.commit();
+  }
+
+  /// Lấy stream tất cả tổ
+  Stream<List<TeamModel>> streamAllTeams() {
+    return _teamRef.snapshots().map(
+      (snapshot) =>
+          snapshot.docs.map((e) => TeamModel.fromFirestore(e)).toList(),
+    );
   }
 }

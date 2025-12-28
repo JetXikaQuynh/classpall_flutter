@@ -53,18 +53,18 @@ class AssigneeCard extends StatelessWidget {
 
           Padding(
             padding: const EdgeInsets.only(top: 8.0),
-            child: GestureDetector(
-              onTap: () {
-                print("Xem thêm người phụ trách");
-              },
-              child: const Text(
-                "Xem thêm",
-                style: TextStyle(
-                  color: Color(0xFF4A7EFF),
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
+            // child: GestureDetector(
+            //   onTap: () {
+            //     print("Xem thêm người phụ trách");
+            //   },
+            //   child: const Text(
+            //     "Xem thêm",
+            //     style: TextStyle(
+            //       color: Color(0xFF4A7EFF),
+            //       fontWeight: FontWeight.w600,
+            //     ),
+            //   ),
+            // ),
           ),
         ],
       ),

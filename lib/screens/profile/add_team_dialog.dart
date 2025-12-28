@@ -1,20 +1,19 @@
-// lib/screens/permission/add_team_dialog.dart
-
 import 'package:flutter/material.dart';
+import '../../services/user_service.dart';
+import '../../services/duty_services/team_service.dart';
+import '../../models/user_model.dart';
 
 class AddTeamDialog {
   static void show(BuildContext context) {
-    TextEditingController teamNameController = TextEditingController();
-    TextEditingController searchController = TextEditingController();
+    final teamNameController = TextEditingController();
+    final searchController = TextEditingController();
 
-    // Danh sách mẫu - sau này bạn thay Firebase
-    List<Map<String, dynamic>> availableUsers = [
-      {"name": "Nguyễn Văn A", "selected": false},
-      {"name": "Đỗ Thị C", "selected": false},
-      {"name": "Đỗ Thị C", "selected": false},
-    ];
+    final userService = UserService();
+    final teamService = TeamService();
 
-    List<Map<String, dynamic>> filteredUsers = List.from(availableUsers);
+    List<UserModel> availableUsers = [];
+    List<UserModel> filteredUsers = [];
+    final selectedUserIds = <String>{};
 
     showDialog(
       context: context,
@@ -22,12 +21,26 @@ class AddTeamDialog {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
+            Future<void> loadUsers() async {
+              final users = await userService.getAllUsers();
+              final noTeamUsers = users.where((u) => u.teamId.isEmpty).toList();
+
+              setState(() {
+                availableUsers = noTeamUsers;
+                filteredUsers = noTeamUsers;
+              });
+            }
+
+            if (availableUsers.isEmpty) {
+              loadUsers();
+            }
+
             return Dialog(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(18),
               ),
               child: Container(
-                width: 400,
+                width: 420,
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -57,11 +70,8 @@ class AddTeamDialog {
                     const Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        "Tên tổ*: ",
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        "Tên tổ*",
+                        style: TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -69,12 +79,7 @@ class AddTeamDialog {
                     TextField(
                       controller: teamNameController,
                       decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 10,
-                        ),
+                        hintText: "VD: team04",
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -83,105 +88,88 @@ class AddTeamDialog {
 
                     const SizedBox(height: 20),
 
-                    /// Chọn thành viên
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "Chọn thành viên:",
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                        ),
+                    /// Search
+                    TextField(
+                      controller: searchController,
+                      decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.search),
+                        hintText: "Tìm kiếm thành viên...",
+                        border: OutlineInputBorder(),
                       ),
-                    ),
-
-                    const SizedBox(height: 6),
-
-                    /// Tìm kiếm
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: TextField(
-                        controller: searchController,
-                        decoration: const InputDecoration(
-                          hintText: "Tìm kiếm thành viên...",
-                          prefixIcon: Icon(Icons.search),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(vertical: 10),
-                        ),
-                        onChanged: (value) {
-                          setState(() {
-                            filteredUsers = availableUsers
-                                .where(
-                                  (u) => u["name"].toLowerCase().contains(
-                                    value.toLowerCase(),
-                                  ),
-                                )
-                                .toList();
-                          });
-                        },
-                      ),
+                      onChanged: (v) {
+                        setState(() {
+                          filteredUsers = availableUsers
+                              .where(
+                                (u) => u.fullName.toLowerCase().contains(
+                                  v.toLowerCase(),
+                                ),
+                              )
+                              .toList();
+                        });
+                      },
                     ),
 
                     const SizedBox(height: 12),
 
-                    /// Danh sách checkbox
+                    /// USER LIST
                     Container(
-                      height: 160,
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      height: 180,
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey.shade300),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: ListView.builder(
                         itemCount: filteredUsers.length,
-                        itemBuilder: (context, index) {
-                          return Row(
-                            children: [
-                              Checkbox(
-                                value: filteredUsers[index]["selected"],
-                                onChanged: (val) {
-                                  setState(() {
-                                    filteredUsers[index]["selected"] = val!;
-                                    // Đồng bộ lại
-                                    final name = filteredUsers[index]["name"];
-                                    final idx = availableUsers.indexWhere(
-                                      (u) => u["name"] == name,
-                                    );
-                                    availableUsers[idx]["selected"] = val;
-                                  });
-                                },
-                              ),
-                              Text(filteredUsers[index]["name"]),
-                            ],
+                        itemBuilder: (_, i) {
+                          final u = filteredUsers[i];
+                          return CheckboxListTile(
+                            value: selectedUserIds.contains(u.id),
+                            title: Text(u.fullName),
+                            onChanged: (v) {
+                              setState(() {
+                                v == true
+                                    ? selectedUserIds.add(u.id)
+                                    : selectedUserIds.remove(u.id);
+                              });
+                            },
                           );
                         },
                       ),
                     ),
 
-                    const SizedBox(height: 10),
-
-                    const Text(
-                      "Lưu ý: Bạn chỉ có thể chọn những thành viên chưa có tổ.",
-                      style: TextStyle(fontSize: 12, color: Colors.blue),
-                      textAlign: TextAlign.left,
-                    ),
-
                     const SizedBox(height: 18),
 
-                    /// Tạo tổ
+                    /// CREATE
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {
-                          // TODO: Ghi Firestore
-                          Navigator.pop(context);
+                        onPressed: () async {
+                          final name = teamNameController.text.trim();
+                          if (name.isEmpty || selectedUserIds.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Vui lòng nhập tên tổ và chọn thành viên',
+                                ),
+                              ),
+                            );
+                            return;
+                          }
+
+                          await teamService.createTeam(
+                            teamId: name,
+                            userIds: selectedUserIds.toList(),
+                          );
+
+                          Navigator.pop(context, true);
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromARGB(255, 0, 68, 185),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          backgroundColor: const Color.fromARGB(
+                            255,
+                            0,
+                            68,
+                            185,
+                          ),
                         ),
                         child: const Text(
                           "Tạo tổ",
@@ -190,18 +178,9 @@ class AddTeamDialog {
                       ),
                     ),
 
-                    const SizedBox(height: 8),
-
-                    /// Hủy
-                    SizedBox(
-                      width: double.infinity,
-                      child: TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text(
-                          "Hủy",
-                          style: TextStyle(fontSize: 16, color: Colors.black),
-                        ),
-                      ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text("Hủy"),
                     ),
                   ],
                 ),

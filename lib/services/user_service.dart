@@ -10,6 +10,11 @@ class UserService {
     return snapshot.docs.map((e) => UserModel.fromFirestore(e)).toList();
   }
 
+  /// Cập nhật thông tin user
+  Future<void> updateUser(String userId, Map<String, dynamic> data) async {
+    await _userRef.doc(userId).update(data);
+  }
+
   /// Lấy user theo id
   Future<UserModel?> getUserById(String userId) async {
     try {
@@ -38,5 +43,16 @@ class UserService {
   /// Set user làm tổ trưởng
   Future<void> setLeader(String userId, bool isLeader) async {
     await _userRef.doc(userId).update({'is_leader': isLeader});
+  }
+
+  /// Set user role (admin / member)
+  Future<void> setRole(String userId, bool isAdmin) async {
+    await _userRef.doc(userId).update({'role': isAdmin});
+  }
+
+  Stream<List<UserModel>> streamAllUsers() {
+    return _userRef.snapshots().map(
+      (snap) => snap.docs.map((d) => UserModel.fromFirestore(d)).toList(),
+    );
   }
 }
