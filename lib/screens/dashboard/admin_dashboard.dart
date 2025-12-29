@@ -1,7 +1,6 @@
 import 'package:classpall_flutter/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:classpall_flutter/widgets/custom_bottom_bar.dart';
-import 'package:classpall_flutter/routes/app_routes.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});

@@ -1,9 +1,10 @@
-import 'package:classpall_flutter/routes/app_routes.dart';
 import 'package:flutter/material.dart';
+import '/services/assets/asset_service.dart';
+import '/models/assets_models/asset_model.dart';
 import 'add_asset_dialog.dart';
 import 'confirm_borrow_dialog.dart';
 import 'confirm_return_dialog.dart';
-import 'package:classpall_flutter/widgets/custom_bottom_bar.dart';
+import 'asset_history_screen.dart';
 
 class AssetsScreen extends StatefulWidget {
   const AssetsScreen({super.key});
@@ -13,82 +14,15 @@ class AssetsScreen extends StatefulWidget {
 }
 
 class _AssetsScreenState extends State<AssetsScreen> {
-  final List<Map<String, dynamic>> assets = [
-    {'name': 'Remote điều hòa #1', 'borrowed': false},
-    {'name': 'Remote máy chiếu', 'borrowed': false},
-    {'name': 'Chìa khóa tủ bảng', 'borrowed': false},
-  ];
+  final AssetService assetService = AssetService();
 
   bool expandTotal = false;
   bool expandAvailable = false;
   bool expandBorrowed = false;
-
-  // ===== ACTIONS =====
-
-  Future<void> _addAsset() async {
-    final name = await showDialog<String>(
-      context: context,
-      builder: (_) => const AddAssetDialog(),
-    );
-
-    if (name != null && name.isNotEmpty) {
-      setState(() {
-        assets.add({'name': name, 'borrowed': false});
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Thêm tài sản thành công'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    }
-  }
-
-  Future<void> _borrowAsset(int index) async {
-    final assetName = assets[index]['name'];
-
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (_) => ConfirmBorrowDialog(
-        assetName: assetName,
-      ),
-    );
-
-    if (ok == true) {
-      setState(() {
-        assets[index]['borrowed'] = true;
-      });
-    }
-  }
-
-  Future<void> _returnAsset(int index) async {
-    final assetName = assets[index]['name'];
-
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (_) => ConfirmReturnDialog(
-        assetName: assetName,
-      ),
-    );
-
-    if (ok == true) {
-      setState(() {
-        assets[index]['borrowed'] = false;
-      });
-    }
-  }
-
-  int _currentIndex = 0;
-
-  // ===== BUILD =====
+  String searchText = '';
 
   @override
   Widget build(BuildContext context) {
-    final total = assets.length;
-    final available = assets.where((e) => !e['borrowed']).length;
-    final borrowed = assets.where((e) => e['borrowed']).length;
-
     return Scaffold(
       backgroundColor: const Color(0xFFF2F7FB),
       appBar: AppBar(
@@ -101,122 +35,202 @@ class _AssetsScreenState extends State<AssetsScreen> {
             Text('Quản lý tài sản',
                 style: TextStyle(fontWeight: FontWeight.bold)),
             SizedBox(height: 2),
-            Text('Danh sách tài sản chung',
-                style: TextStyle(fontSize: 12, color: Colors.grey)),
+            Text(
+              'Danh sách tài sản chung',
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
           ],
         ),
       ),
 
+      // ================= BODY =================
       body: Column(
         children: [
-          _topAction(),
-          const SizedBox(height: 8),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+          // ===== TOP ACTION =====
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.all(12),
+            child: Column(
               children: [
-                _sectionHeader(
-                  icon: Icons.inventory_2_outlined,
-                  iconColor: Colors.blue,
-                  title: 'Tổng tài sản',
-                  count: total,
-                  expanded: expandTotal,
-                  onTap: () => setState(() => expandTotal = !expandTotal),
+                SizedBox(
+                  width: double.infinity,
+                  height: 44,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.add),
+                    label: const Text('Thêm tài sản'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2F80ED),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (_) => const AddAssetDialog(),
+                      );
+                    },
+                  ),
                 ),
-                if (expandTotal)
-                  ...assets.map((e) => _assetRow(e)).toList(),
-
-                _sectionHeader(
-                  icon: Icons.check_circle_outline,
-                  iconColor: Colors.green,
-                  title: 'Có sẵn',
-                  count: available,
-                  expanded: expandAvailable,
-                  onTap: () =>
-                      setState(() => expandAvailable = !expandAvailable),
+                const SizedBox(height: 10),
+                TextField(
+                  onChanged: (value){
+                    setState(() {
+                      searchText = value.toLowerCase();
+                    });
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Tìm kiếm tài sản...',
+                    prefixIcon: const Icon(Icons.search),
+                    filled: true,
+                    fillColor: Colors.grey.shade100,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
                 ),
-                if (expandAvailable)
-                  ...assets
-                      .asMap()
-                      .entries
-                      .where((e) => !e.value['borrowed'])
-                      .map((e) => _assetRow(
-                    e.value,
-                    onBorrow: () => _borrowAsset(e.key),
-                  ))
-                      .toList(),
-
-                _sectionHeader(
-                  icon: Icons.person_outline,
-                  iconColor: Colors.red,
-                  title: 'Đang mượn',
-                  count: borrowed,
-                  expanded: expandBorrowed,
-                  onTap: () =>
-                      setState(() => expandBorrowed = !expandBorrowed),
-                ),
-                if (expandBorrowed)
-                  ...assets
-                      .asMap()
-                      .entries
-                      .where((e) => e.value['borrowed'])
-                      .map((e) => _assetRow(
-                      e.value,
-                      borrowedView: true,
-                      onReturn: () => _returnAsset(e.key),
-                  ))
-                      .toList(),
               ],
             ),
           ),
 
-          _historyButton(),
+          const SizedBox(height: 8),
+
+          // ===== LIST FIREBASE =====
+          Expanded(
+            child: StreamBuilder<List<Asset>>(
+              stream: assetService.getAssets(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState ==
+                    ConnectionState.waiting) {
+                  return const Center(
+                      child: CircularProgressIndicator());
+                }
+
+                final assets = snapshot.data ?? [];
+
+                final filteredAssets = assets.where((a) {
+                  return a.name.toLowerCase().contains(searchText);
+                }).toList();
+
+                final total = filteredAssets.length;
+                final available = filteredAssets
+                    .where((e) => e.status == 'available')
+                    .toList();
+                final borrowed = filteredAssets
+                    .where((e) => e.status == 'borrowed')
+                    .toList();
+
+                return ListView(
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: 12),
+                  children: [
+                    _sectionHeader(
+                      icon: Icons.inventory_2_outlined,
+                      iconColor: Colors.blue,
+                      title: 'Tổng tài sản',
+                      count: total,
+                      expanded: expandTotal,
+                      onTap: () =>
+                          setState(() => expandTotal = !expandTotal),
+                    ),
+                    if (expandTotal)
+                      ...assets
+                          .map((e) => _assetRow(asset: e))
+                          .toList(),
+
+                    _sectionHeader(
+                      icon: Icons.check_circle_outline,
+                      iconColor: Colors.green,
+                      title: 'Có sẵn',
+                      count: available.length,
+                      expanded: expandAvailable,
+                      onTap: () => setState(
+                              () => expandAvailable = !expandAvailable),
+                    ),
+                    if (expandAvailable)
+                      ...available
+                          .map(
+                            (e) => _assetRow(
+                          asset: e,
+                          actionLabel: 'Mượn',
+                          onAction: () => borrowAsset(e),
+                        ),
+                      )
+                          .toList(),
+
+                    _sectionHeader(
+                      icon: Icons.person_outline,
+                      iconColor: Colors.red,
+                      title: 'Đang mượn',
+                      count: borrowed.length,
+                      expanded: expandBorrowed,
+                      onTap: () => setState(
+                              () => expandBorrowed = !expandBorrowed),
+                    ),
+                    if (expandBorrowed)
+                      ...borrowed
+                          .map(
+                            (e) => _assetRow(
+                          asset: e,
+                          actionLabel: 'Trả',
+                          actionColor: Colors.blue,
+                          onAction: () => returnAsset(e),
+                          subtitle: 'Người mượn: ${e.borrowedBy}',
+                        ),
+                      )
+                          .toList(),
+                  ],
+                );
+              },
+            ),
+          ),
+
+          // ===== HISTORY BUTTON =====
+          Container(
+            padding: const EdgeInsets.all(12),
+            color: Colors.white,
+            child: SizedBox(
+              width: double.infinity,
+              height: 44,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.history),
+                label: const Text('Lịch sử'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2F80ED),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const AssetHistoryScreen()),
+                  );
+                },
+              ),
+            ),
+          ),
         ],
       ),
 
-      bottomNavigationBar: CustomBottomBar(currentIndex: _currentIndex),
-    );
-  }
-
-  // ===== UI PARTS =====
-
-  Widget _topAction() {
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        children: [
-          SizedBox(
-            width: double.infinity,
-            height: 44,
-            child: ElevatedButton.icon(
-              icon: const Icon(Icons.add),
-              label: const Text('Thêm tài sản'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2F80ED),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
-              ),
-              onPressed: _addAsset,
-            ),
-          ),
-          const SizedBox(height: 10),
-          TextField(
-            decoration: InputDecoration(
-              hintText: 'Tìm kiếm tài sản...',
-              prefixIcon: const Icon(Icons.search),
-              filled: true,
-              fillColor: Colors.grey.shade100,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide.none,
-              ),
-            ),
-          ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 0,
+        items: [
+          BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined), label: ''),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.notifications_none), label: ''),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline), label: ''),
         ],
       ),
     );
   }
+
+  // ================= COMPONENTS =================
 
   Widget _sectionHeader({
     required IconData icon,
@@ -228,7 +242,8 @@ class _AssetsScreenState extends State<AssetsScreen> {
   }) {
     return Card(
       margin: const EdgeInsets.only(top: 10),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10)),
       child: ListTile(
         leading: Icon(icon, color: iconColor),
         title:
@@ -241,12 +256,13 @@ class _AssetsScreenState extends State<AssetsScreen> {
     );
   }
 
-  Widget _assetRow(
-      Map<String, dynamic> asset, {
-        VoidCallback? onBorrow,
-        VoidCallback? onReturn,
-        bool borrowedView = false,
-      }) {
+  Widget _assetRow({
+    required Asset asset,
+    String? actionLabel,
+    Color actionColor = Colors.blue,
+    VoidCallback? onAction,
+    String? subtitle,
+  }) {
     return Container(
       margin: const EdgeInsets.only(top: 6),
       padding: const EdgeInsets.all(10),
@@ -258,66 +274,98 @@ class _AssetsScreenState extends State<AssetsScreen> {
         children: [
           const Icon(Icons.vpn_key, size: 20),
           const SizedBox(width: 10),
-          Expanded(child: Text(asset['name'])),
-          if (onBorrow != null)
-            GestureDetector(
-              onTap: onBorrow,
-              child: _badge('Mượn'),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(asset.name),
+                if (subtitle != null)
+                  Text(subtitle,
+                      style: const TextStyle(
+                          fontSize: 12, color: Colors.grey)),
+              ],
             ),
-          if (borrowedView)
+          ),
+          if (actionLabel != null)
             GestureDetector(
-              onTap: onReturn,
-              child: _badge('Trả',color: Colors.blue),
+              onTap: onAction,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(actionLabel,
+                    style: TextStyle(
+                        fontSize: 12, color: actionColor)),
+              ),
             ),
           const SizedBox(width: 8),
-          const Icon(Icons.delete_outline, color: Colors.grey),
+          GestureDetector(
+            onTap: () => deleteAsset(asset),
+            child: const Icon(Icons.delete_outline, color: Colors.grey),
+          ),
         ],
       ),
     );
   }
 
-  Widget _badge(String text, {Color color = Colors.blue}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child:
-      Text(text, style: TextStyle(fontSize: 12, color: color)),
+  // ================= ACTIONS =================
+
+  Future<void> borrowAsset(Asset asset) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => ConfirmBorrowDialog(assetName: asset.name),
     );
+
+    if (ok == true) {
+      await assetService.borrowAsset(
+        assetId: asset.id,
+        assetName: asset.name,
+        userName: 'Nguyễn Văn A',
+      );
+    }
   }
 
-  Widget _historyButton() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      color: Colors.white,
-      child: GestureDetector(
-        onTap: () {
-          Navigator.of(
-            context, rootNavigator : true).pushNamed(
-          AppRoutes.assetHistory,
-          );
-        },
-        child: Container(
-          height: 44,
-          decoration: BoxDecoration(
-            color: const Color(0xFF2F80ED),
-            borderRadius: BorderRadius.circular(8),
+  Future<void> deleteAsset(Asset asset) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Xóa tài sản'),
+        content: Text('Bạn có chắc muốn xóa "${asset.name}" không?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Hủy'),
           ),
-          child: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.history, color: Colors.white),
-              SizedBox(width: 8),
-              Text(
-                'Lịch sử',
-                style: TextStyle(color: Colors.white),
-              ),
-            ],
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Xóa'),
           ),
-        ),
+        ],
       ),
     );
+
+    if (ok == true) {
+      await assetService.deleteAsset(asset.id);
+    }
+  }
+
+
+  Future<void> returnAsset(Asset asset) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => ConfirmReturnDialog(assetName: asset.name),
+    );
+
+    if (ok == true) {
+      await assetService.returnAsset(
+        assetId: asset.id,
+        assetName: asset.name,
+        userName: 'Nguyễn Văn A',
+      );
+    }
   }
 }

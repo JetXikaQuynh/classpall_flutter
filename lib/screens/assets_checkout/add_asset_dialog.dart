@@ -1,3 +1,4 @@
+import 'package:classpall_flutter/services/assets/asset_service.dart';
 import 'package:flutter/material.dart';
 
 class AddAssetDialog extends StatefulWidget {
@@ -9,6 +10,7 @@ class AddAssetDialog extends StatefulWidget {
 
 class _AddAssetDialogState extends State<AddAssetDialog> {
   final controller = TextEditingController();
+  final service = AssetService();
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +25,18 @@ class _AddAssetDialogState extends State<AddAssetDialog> {
       ),
       actions: [
         ElevatedButton(
-          onPressed: () => Navigator.pop(context, controller.text.trim()),
           child: const Text('Thêm'),
+          onPressed: () async {
+            if (controller.text.trim().isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Tên tài sản không được để trống')),
+              );
+              return;
+            }
+
+            await service.addAsset(controller.text.trim());
+            Navigator.pop(context);
+          },
         ),
       ],
     );
