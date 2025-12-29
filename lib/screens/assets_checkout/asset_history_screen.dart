@@ -1,139 +1,173 @@
 import 'package:flutter/material.dart';
-import 'package:classpall_flutter/widgets/custom_bottom_bar.dart';
+import '/models/assets_models/asset_history_model.dart';
+import '/services/assets_services/asset_history_service.dart';
 
-class AssetHistoryScreen extends StatelessWidget {
+class AssetHistoryScreen extends StatefulWidget {
   const AssetHistoryScreen({super.key});
+
+  @override
+  State<AssetHistoryScreen> createState() => _AssetHistoryScreenState();
+}
+
+class _AssetHistoryScreenState extends State<AssetHistoryScreen> {
+  final AssetHistoryService historyService = AssetHistoryService();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEFF6FB),
+      backgroundColor: const Color(0xFFF2F7FB),
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
+        title: const Text(
+          'Lịch sử tài sản',
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        title: const Text("Lịch sử mượn trả"),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
+      body: StreamBuilder<List<AssetHistory>>(
+        stream: historyService.getHistory(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(
+              child: Text(
+                'Chưa có lịch sử',
+                style: TextStyle(color: Colors.grey),
+              ),
+            );
+          }
+
+          final histories = snapshot.data!;
+
+          final borrowed =
+          histories.where((e) => e.action == 'borrowed').toList();
+          final returned =
+          histories.where((e) => e.action == 'returned').toList();
+
+          return ListView(
+            padding: const EdgeInsets.all(12),
+            children: [
+              _buildSection(
+                title: 'Đã mượn',
+                color: Colors.orange,
+                items: borrowed,
+              ),
+              const SizedBox(height: 16),
+              _buildSection(
+                title: 'Đã trả',
+                color: Colors.blue,
+                items: returned,
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  // ================= UI =================
+
+  Widget _buildSection({
+    required String title,
+    required Color color,
+    required List<AssetHistory> items,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
           children: [
-            // Search box
-            TextField(
-              decoration: InputDecoration(
-                hintText: "Tìm kiếm tài sản...",
-                prefixIcon: const Icon(Icons.search),
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide.none,
-                ),
+            Container(
+              width: 6,
+              height: 20,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(3),
               ),
             ),
-
-            const SizedBox(height: 12),
-
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildSection(
-                      title: "Đã trả",
-                      titleColor: Colors.blue,
-                      items: returnedItems,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildSection(
-                      title: "Đang mượn",
-                      titleColor: Colors.orange,
-                      items: borrowingItems,
-                    ),
-                  ],
-                ),
+            const SizedBox(width: 8),
+            Text(
+              '$title (${items.length})',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: color,
               ),
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: CustomBottomBar(currentIndex: 0),
+        const SizedBox(height: 8),
+        if (items.isEmpty)
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Text(
+              'Không có dữ liệu',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+        ...items.map(_buildItem),
+      ],
     );
   }
 
-  // ================= SECTION =================
-
-  Widget _buildSection({
-    required String title,
-    required Color titleColor,
-    required List<BorrowItem> items,
-  }) {
+  Widget _buildItem(AssetHistory item) {
     return Container(
+      margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: titleColor,
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Column(
-            children: items.map(_buildItem).toList(),
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x11000000),
+            blurRadius: 4,
+            offset: Offset(0, 2),
           ),
         ],
       ),
-    );
-  }
-
-  // ================= ITEM =================
-
-  Widget _buildItem(BorrowItem item) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF7F7F7),
-        borderRadius: BorderRadius.circular(10),
-      ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(item.icon, size: 28, color: Colors.black54),
-          const SizedBox(width: 10),
+          CircleAvatar(
+            backgroundColor: item.action == 'borrowed'
+                ? Colors.orange.shade100
+                : Colors.blue.shade100,
+            child: Icon(
+              item.action == 'borrowed'
+                  ? Icons.vpn_key
+                  : Icons.check_circle,
+              color:
+              item.action == 'borrowed' ? Colors.orange : Colors.blue,
+            ),
+          ),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item.name,
+                  item.assetName,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Người ${item.action == 'borrowed' ? 'mượn' : 'trả'}: ${item.userName}',
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Thời gian: ${_formatDate(item.time)}',
                   style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
+                    fontSize: 12,
+                    color: Colors.grey,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text("Người giữ: ${item.user}"),
-                Text("Mượn: ${item.borrowTime}"),
-                if (item.returnTime != null)
-                  Text("Trả: ${item.returnTime}"),
               ],
             ),
           ),
@@ -141,50 +175,12 @@ class AssetHistoryScreen extends StatelessWidget {
       ),
     );
   }
+
+  String _formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}/'
+        '${date.month.toString().padLeft(2, '0')}/'
+        '${date.year} '
+        '${date.hour.toString().padLeft(2, '0')}:'
+        '${date.minute.toString().padLeft(2, '0')}';
+  }
 }
-
-// ================= MODEL =================
-
-class BorrowItem {
-  final String name;
-  final String user;
-  final String borrowTime;
-  final String? returnTime;
-  final IconData icon;
-
-  const BorrowItem({
-    required this.name,
-    required this.user,
-    required this.borrowTime,
-    this.returnTime,
-    required this.icon,
-  });
-}
-
-// ================= DATA MOCK =================
-
-const returnedItems = [
-  BorrowItem(
-    name: "Remote điều hòa #1",
-    user: "Nguyễn Văn A",
-    borrowTime: "12:00 - 10/11",
-    returnTime: "13:30 - 10/11",
-    icon: Icons.settings_remote,
-  ),
-  BorrowItem(
-    name: "Remote máy chiếu",
-    user: "Phạm Văn B",
-    borrowTime: "10:00 - 09/11",
-    returnTime: "11:10 - 09/11",
-    icon: Icons.tv,
-  ),
-];
-
-const borrowingItems = [
-  BorrowItem(
-    name: "Chìa khóa tủ bảng",
-    user: "Nguyễn Văn A",
-    borrowTime: "09:00 - 12/11",
-    icon: Icons.vpn_key,
-  ),
-];
