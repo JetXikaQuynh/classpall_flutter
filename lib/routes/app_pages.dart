@@ -9,11 +9,13 @@ import 'package:classpall_flutter/screens/fund/fund_screen.dart';
 import 'package:classpall_flutter/screens/assets_checkout/asset_history_screen.dart';
 import 'package:classpall_flutter/screens/assets_checkout/asset_screen.dart';
 
-// Auth + Dashboard ===
+// Auth + Dashboard === + reset password. 
 import 'package:classpall_flutter/screens/splash/splash_screen.dart';
 import 'package:classpall_flutter/screens/auth/login_page.dart';
 import 'package:classpall_flutter/screens/dashboard/admin_dashboard.dart';
 import 'package:classpall_flutter/screens/dashboard/member_dashboard.dart';
+import 'package:classpall_flutter/screens/profile/change_password_screen.dart';
+
 
 // Event - Admin
 import 'package:classpall_flutter/screens/events/admin/event_list_page.dart';
@@ -43,11 +45,14 @@ class AppPages {
   static final Map<String, WidgetBuilder> routes = {
     AppRoutes.home: (_) => const SplashScreen(),
 
-    //
+    //Doashboard + resetpassword
     AppRoutes.splash: (_) => const SplashScreen(),
     AppRoutes.login: (_) => const LoginScreen(),
     AppRoutes.adminDashboard: (_) => const AdminDashboard(),
     AppRoutes.memberDashboard: (_) => const MemberDashboard(),
+    AppRoutes.changePassword: (_) => const ChangePasswordScreen(),
+
+    
     // Duty
     AppRoutes.adminDashboardDuty: (_) => const AdminDashboardDuty(),
     AppRoutes.memberDashboardDuty: (_) => const MemberDashboardDuty(),

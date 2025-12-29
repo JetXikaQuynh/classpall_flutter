@@ -3,14 +3,11 @@ import 'package:classpall_flutter/widgets/event/event_info_row.dart';
 import 'package:classpall_flutter/services/event_services/event_service.dart';
 import 'package:classpall_flutter/services/event_services/event_registration_service.dart';
 import 'package:classpall_flutter/models/event_models/event_model.dart';
-import 'package:classpall_flutter/services/auth_service.dart'; 
+import 'package:classpall_flutter/services/auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:classpall_flutter/services/event_services/event_export_service.dart';
-import 'package:classpall_flutter/services/notification_service.dart'; 
+import 'package:classpall_flutter/services/notification_service.dart';
 import 'package:classpall_flutter/widgets/custom_bottom_bar.dart';
-
-
-
 
 class EventDetailPage extends StatefulWidget {
   const EventDetailPage({super.key});
@@ -29,53 +26,52 @@ class _EventDetailPageState extends State<EventDetailPage>
     super.dispose();
   }
 
-void _exportCsv(BuildContext context, String eventId) async {
-  try {
-    await EventExportService.exportEventParticipants(eventId);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Xuất file thành công')),
-    );
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(e.toString())),
-    );
-  }
-}
-
-
-void _sendReminder(EventModel event) async {
-  final users = await FirebaseFirestore.instance.collection('users').get();
-  final regs = await FirebaseFirestore.instance
-      .collection('event_registrations')
-      .where('event_id', isEqualTo: event.id)
-      .get();
-
-  final registered = regs.docs
-      .map((e) => (e.data() as Map)['user_id'])
-      .toSet();
-
-  final targets = users.docs.where((u) => !registered.contains(u.id));
-
-  for (final user in targets) {
-    await NotificationService.instance.sendNotification(
-      userId: user.id,
-      title: 'Nhắc nhở sự kiện',
-      body: 'Vui lòng phản hồi sự kiện "${event.title}"',
-      type: 'event',
-      targetId: event.id,
-    );
+  void _exportCsv(BuildContext context, String eventId) async {
+    try {
+      await EventExportService.exportEventParticipants(eventId);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Xuất file thành công')));
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
+    }
   }
 
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text('Đã gửi nhắc nhở')),
-  );
-}
+  void _sendReminder(EventModel event) async {
+    final users = await FirebaseFirestore.instance.collection('users').get();
+    final regs = await FirebaseFirestore.instance
+        .collection('event_registrations')
+        .where('event_id', isEqualTo: event.id)
+        .get();
 
+    final registered = regs.docs
+        .map((e) => (e.data() as Map)['user_id'])
+        .toSet();
 
+    final targets = users.docs.where((u) => !registered.contains(u.id));
+
+    for (final user in targets) {
+      await NotificationService.instance.sendNotification(
+        userId: user.id,
+        title: 'Nhắc nhở sự kiện',
+        body: 'Vui lòng phản hồi sự kiện "${event.title}"',
+        type: 'event',
+        targetId: event.id,
+      );
+    }
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Đã gửi nhắc nhở')));
+  }
 
   @override
   Widget build(BuildContext context) {
-    final String eventId = ModalRoute.of(context)?.settings.arguments as String? ?? 'hardcode_event_id_for_test';
+    final String eventId =
+        ModalRoute.of(context)?.settings.arguments as String? ??
+        'hardcode_event_id_for_test';
 
     return Scaffold(
       bottomNavigationBar: const CustomBottomBar(currentIndex: 1),
@@ -106,7 +102,9 @@ void _sendReminder(EventModel event) async {
           }
 
           return StreamBuilder<QuerySnapshot>(
-            stream: EventRegistrationService.instance.getRegistrationsByEvent(eventId),
+            stream: EventRegistrationService.instance.getRegistrationsByEvent(
+              eventId,
+            ),
             builder: (context, regSnapshot) {
               if (regSnapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -138,8 +136,11 @@ void _sendReminder(EventModel event) async {
               return FutureBuilder<int>(
                 future: AuthService.getTotalMembers(), // Lấy tổng từ users
                 builder: (context, totalSnapshot) {
-                  final totalMembers = totalSnapshot.data ?? event.totalClass ?? 0;
-                  final pendingCount = totalMembers - registeredUids.length; // Chưa phản hồi = total - registered
+                  final totalMembers = totalSnapshot.data ?? event.totalClass;
+                  final pendingCount =
+                      totalMembers -
+                      registeredUids
+                          .length; // Chưa phản hồi = total - registered
 
                   return SingleChildScrollView(
                     padding: const EdgeInsets.all(16),
@@ -148,19 +149,28 @@ void _sendReminder(EventModel event) async {
                       children: [
                         Text(
                           event.title,
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         const SizedBox(height: 6),
                         if (event.isMandatory)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: const Color(0xFFFFE0E0),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: const Text(
                               'Bắt buộc',
-                              style: TextStyle(color: Color(0xFFE91E63), fontSize: 12),
+                              style: TextStyle(
+                                color: Color(0xFFE91E63),
+                                fontSize: 12,
+                              ),
                             ),
                           ),
                         const SizedBox(height: 12),
@@ -176,7 +186,10 @@ void _sendReminder(EventModel event) async {
                         EventInfoRow(
                           icon: Icons.access_time,
                           iconColor: Colors.blue,
-                          text: event.eventDate.toString().split(' ')[1].substring(0, 5),
+                          text: event.eventDate
+                              .toString()
+                              .split(' ')[1]
+                              .substring(0, 5),
                         ),
                         const SizedBox(height: 8),
                         EventInfoRow(
@@ -193,9 +206,11 @@ void _sendReminder(EventModel event) async {
                             label: const Text('Xuất danh sách CSV'),
                             style: OutlinedButton.styleFrom(
                               backgroundColor: Colors.blue,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
-                            onPressed: () =>  _exportCsv(context, eventId),
+                            onPressed: () => _exportCsv(context, eventId),
                           ),
                         ),
 
@@ -231,7 +246,9 @@ void _sendReminder(EventModel event) async {
                           child: ElevatedButton.icon(
                             icon: const Icon(Icons.notifications_active),
                             label: const Text('Gửi nhắc nhở'),
-                            style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                            ),
                             onPressed: () => _sendReminder(event),
                           ),
                         ),
@@ -240,7 +257,12 @@ void _sendReminder(EventModel event) async {
                         TabBar(
                           controller: _tabController,
                           labelColor: Theme.of(context).primaryColor,
-                          unselectedLabelColor: const Color.fromARGB(255, 255, 255, 255),
+                          unselectedLabelColor: const Color.fromARGB(
+                            255,
+                            255,
+                            255,
+                            255,
+                          ),
                           tabs: event.isMandatory
                               ? [
                                   Tab(text: 'Chưa đăng ký ($pendingCount)'),
@@ -259,13 +281,38 @@ void _sendReminder(EventModel event) async {
                             controller: _tabController,
                             children: event.isMandatory
                                 ? [
-                                    _StudentList(registrations: registrations, statusFilter: 'pending', warning: true, totalMembers: totalMembers),
-                                    _StudentList(registrations: registrations, statusFilter: 'joined', warning: false, totalMembers: totalMembers),
+                                    _StudentList(
+                                      registrations: registrations,
+                                      statusFilter: 'pending',
+                                      warning: true,
+                                      totalMembers: totalMembers,
+                                    ),
+                                    _StudentList(
+                                      registrations: registrations,
+                                      statusFilter: 'joined',
+                                      warning: false,
+                                      totalMembers: totalMembers,
+                                    ),
                                   ]
                                 : [
-                                    _StudentList(registrations: registrations, statusFilter: 'pending', warning: true, totalMembers: totalMembers),
-                                    _StudentList(registrations: registrations, statusFilter: 'joined', warning: false, totalMembers: totalMembers),
-                                    _StudentList(registrations: registrations, statusFilter: 'declined', warning: true, totalMembers: totalMembers),
+                                    _StudentList(
+                                      registrations: registrations,
+                                      statusFilter: 'pending',
+                                      warning: true,
+                                      totalMembers: totalMembers,
+                                    ),
+                                    _StudentList(
+                                      registrations: registrations,
+                                      statusFilter: 'joined',
+                                      warning: false,
+                                      totalMembers: totalMembers,
+                                    ),
+                                    _StudentList(
+                                      registrations: registrations,
+                                      statusFilter: 'declined',
+                                      warning: true,
+                                      totalMembers: totalMembers,
+                                    ),
                                   ],
                           ),
                         ),
@@ -282,7 +329,7 @@ void _sendReminder(EventModel event) async {
   }
 }
 
-// _DashboardBox giữ nguyên
+// _DashboardBox 
 class _DashboardBox extends StatelessWidget {
   final Color color;
   final String title;
@@ -364,8 +411,14 @@ class _StudentList extends StatelessWidget {
               final userDoc = pendingUsers[index];
               final userData = userDoc.data() as Map<String, dynamic>;
 
-              final name = userData['fullName'] as String? ?? userData['fullname'] as String? ?? userData['name'] as String? ?? 'Sinh viên ${index + 1}';
-              final email = userData['email'] as String? ?? 'sv${index + 1}@university.edu.vn';
+              final name =
+                  userData['fullName'] as String? ??
+                  userData['fullname'] as String? ??
+                  userData['name'] as String? ??
+                  'Sinh viên ${index + 1}';
+              final email =
+                  userData['email'] as String? ??
+                  'sv${index + 1}@university.edu.vn';
 
               return ListTile(
                 leading: CircleAvatar(child: Text('${index + 1}')),
@@ -399,7 +452,10 @@ class _StudentList extends StatelessWidget {
           final userId = filteredUids.elementAt(index);
 
           return FutureBuilder<DocumentSnapshot>(
-            future: FirebaseFirestore.instance.collection('users').doc(userId).get(),
+            future: FirebaseFirestore.instance
+                .collection('users')
+                .doc(userId)
+                .get(),
             builder: (context, userSnapshot) {
               if (userSnapshot.connectionState == ConnectionState.waiting) {
                 return const ListTile(
@@ -409,10 +465,14 @@ class _StudentList extends StatelessWidget {
                 );
               }
 
-              final userData = userSnapshot.data?.data() as Map<String, dynamic>?;
+              final userData =
+                  userSnapshot.data?.data() as Map<String, dynamic>?;
 
-              final name = userData?['fullName'] as String? ?? 'Sinh viên ${index + 1}';
-              final email = userData?['email'] as String? ?? 'sv${index + 1}@university.edu.vn';
+              final name =
+                  userData?['fullName'] as String? ?? 'Sinh viên ${index + 1}';
+              final email =
+                  userData?['email'] as String? ??
+                  'sv${index + 1}@university.edu.vn';
 
               return ListTile(
                 leading: CircleAvatar(child: Text('${index + 1}')),
@@ -426,7 +486,6 @@ class _StudentList extends StatelessWidget {
           );
         },
       );
-      
     }
   }
 }

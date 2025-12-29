@@ -34,6 +34,37 @@ class AuthService {
     }
   }
 
+//change password
+
+static Future<void> changePassword({
+  required String oldPassword,
+  required String newPassword,
+}) async {
+  final user = _auth.currentUser;
+  if (user == null || user.email == null) {
+    throw Exception('Người dùng chưa đăng nhập');
+  }
+
+  try {
+    // 1. Re-authenticate bằng mật khẩu cũ
+    final credential = EmailAuthProvider.credential(
+      email: user.email!,
+      password: oldPassword,
+    );
+
+    await user.reauthenticateWithCredential(credential);
+
+    // 2. Update mật khẩu mới
+    await user.updatePassword(newPassword);
+  } on FirebaseAuthException catch (e) {
+    throw Exception(e.message);
+  }
+}
+
+
+
+
+
   // ===  Tải role từ Firestore ===
   static Future<void> _loadUserRole() async {
     final user = currentUser;

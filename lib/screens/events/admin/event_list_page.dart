@@ -3,7 +3,7 @@ import 'package:classpall_flutter/widgets/custom_bottom_bar.dart';
 import 'package:classpall_flutter/widgets/event/event_card_admin.dart';
 import 'package:classpall_flutter/routes/app_routes.dart';
 import 'package:classpall_flutter/models/event_models/event_model.dart';
-import 'package:classpall_flutter/services/auth_service.dart'; 
+import 'package:classpall_flutter/services/auth_service.dart';
 import 'package:classpall_flutter/services/event_services/event_service.dart';
 import 'package:classpall_flutter/screens/events/admin/event_create_form.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -88,13 +88,18 @@ class EventListPage extends StatelessWidget {
                                 .where('status', isEqualTo: 'joined')
                                 .snapshots(),
                             builder: (context, regSnapshot) {
-                              final joinedCount = regSnapshot.data?.docs.length ?? event.totalRegistered ?? 0;
+                              final joinedCount =
+                                  regSnapshot.data?.docs.length ??
+                                  event.totalRegistered;
 
                               return EventCardAdmin(
                                 title: event.title,
                                 description: event.description,
                                 date: event.eventDate.toString().split(' ')[0],
-                                time: event.eventDate.toString().split(' ')[1].substring(0, 5),
+                                time: event.eventDate
+                                    .toString()
+                                    .split(' ')[1]
+                                    .substring(0, 5),
                                 location: event.location,
                                 registered: joinedCount, // realtime
                                 capacity: totalMembers, // từ users

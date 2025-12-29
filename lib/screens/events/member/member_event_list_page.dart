@@ -44,12 +44,10 @@ class _MemberEventListPageState extends State<MemberEventListPage> {
           return StreamBuilder<List<EventModel>>(
             stream: EventService().getEvents(),
             builder: (context, eventSnapshot) {
-              if (eventSnapshot.connectionState ==
-                  ConnectionState.waiting) {
+              if (eventSnapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               }
-              if (!eventSnapshot.hasData ||
-                  eventSnapshot.data!.isEmpty) {
+              if (!eventSnapshot.hasData || eventSnapshot.data!.isEmpty) {
                 return const Center(child: Text('Chưa có sự kiện nào'));
               }
 
@@ -58,8 +56,7 @@ class _MemberEventListPageState extends State<MemberEventListPage> {
               return StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection('event_registrations')
-                    .where('user_id',
-                        isEqualTo: AuthService.currentUser?.uid)
+                    .where('user_id', isEqualTo: AuthService.currentUser?.uid)
                     .snapshots(),
                 builder: (context, regSnapshot) {
                   final registrations = regSnapshot.data?.docs ?? [];
@@ -80,10 +77,8 @@ class _MemberEventListPageState extends State<MemberEventListPage> {
                       }
                     }
 
-                    final userReg =
-                        userRegDoc?.data() as Map<String, dynamic>?;
-                    final status =
-                        userReg?['status'] as String? ?? 'pending';
+                    final userReg = userRegDoc?.data() as Map<String, dynamic>?;
+                    final status = userReg?['status'] as String? ?? 'pending';
 
                     if (status == 'pending') pendingCount++;
                     if (status == 'joined' || status == 'declined') {
@@ -93,21 +88,14 @@ class _MemberEventListPageState extends State<MemberEventListPage> {
                     if ((_currentStatus == EventStatus.pending &&
                             status == 'pending') ||
                         (_currentStatus == EventStatus.joined &&
-                            (status == 'joined' ||
-                                status == 'declined'))) {
-                      filteredEvents.add({
-                        'event': event,
-                        'status': status,
-                      });
+                            (status == 'joined' || status == 'declined'))) {
+                      filteredEvents.add({'event': event, 'status': status});
                     }
                   }
 
                   return Column(
                     children: [
-                      _buildFilterBar(
-                        pendingCount,
-                        respondedCount,
-                      ),
+                      _buildFilterBar(pendingCount, respondedCount),
                       Expanded(
                         child: ListView.builder(
                           padding: const EdgeInsets.all(16),
@@ -120,16 +108,13 @@ class _MemberEventListPageState extends State<MemberEventListPage> {
                             return StreamBuilder<QuerySnapshot>(
                               stream: FirebaseFirestore.instance
                                   .collection('event_registrations')
-                                  .where('event_id',
-                                      isEqualTo: event.id)
-                                  .where('status',
-                                      isEqualTo: 'joined')
+                                  .where('event_id', isEqualTo: event.id)
+                                  .where('status', isEqualTo: 'joined')
                                   .snapshots(),
                               builder: (context, joinedSnapshot) {
                                 final joinedCount =
                                     joinedSnapshot.data?.docs.length ??
-                                        event.totalRegistered ??
-                                        0;
+                                    event.totalRegistered;
 
                                 return _buildEventCard(
                                   event: event,
@@ -150,8 +135,7 @@ class _MemberEventListPageState extends State<MemberEventListPage> {
           );
         },
       ),
-      bottomNavigationBar:
-          const CustomBottomBar(currentIndex: 0),
+      bottomNavigationBar: const CustomBottomBar(currentIndex: 0),
     );
   }
 
@@ -164,8 +148,7 @@ class _MemberEventListPageState extends State<MemberEventListPage> {
         children: [
           Expanded(
             child: GestureDetector(
-              onTap: () =>
-                  setState(() => _currentStatus = EventStatus.pending),
+              onTap: () => setState(() => _currentStatus = EventStatus.pending),
               child: _buildFilterChip(
                 label: 'Cần phản hồi',
                 count: pending,
@@ -178,8 +161,7 @@ class _MemberEventListPageState extends State<MemberEventListPage> {
           const SizedBox(width: 12),
           Expanded(
             child: GestureDetector(
-              onTap: () =>
-                  setState(() => _currentStatus = EventStatus.joined),
+              onTap: () => setState(() => _currentStatus = EventStatus.joined),
               child: _buildFilterChip(
                 label: 'Đã phản hồi',
                 count: responded,
@@ -204,8 +186,7 @@ class _MemberEventListPageState extends State<MemberEventListPage> {
   }) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 2,
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -218,21 +199,24 @@ class _MemberEventListPageState extends State<MemberEventListPage> {
                   child: Text(
                     event.title,
                     style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 if (event.isMandatory)
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 4),
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.red.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Text(
                       'Bắt buộc',
-                      style:
-                          TextStyle(color: Colors.red, fontSize: 12),
+                      style: TextStyle(color: Colors.red, fontSize: 12),
                     ),
                   ),
               ],
@@ -240,13 +224,19 @@ class _MemberEventListPageState extends State<MemberEventListPage> {
             const SizedBox(height: 8),
             Text(event.description),
             const SizedBox(height: 12),
-            _infoRow(Icons.calendar_today,
-                event.eventDate.toString().split(' ')[0]),
-            _infoRow(Icons.access_time,
-                event.eventDate.toString().split(' ')[1].substring(0, 5)),
+            _infoRow(
+              Icons.calendar_today,
+              event.eventDate.toString().split(' ')[0],
+            ),
+            _infoRow(
+              Icons.access_time,
+              event.eventDate.toString().split(' ')[1].substring(0, 5),
+            ),
             _infoRow(Icons.location_on, event.location),
-            _infoRow(Icons.people,
-                '$joinedCount/$totalMembers sinh viên đã đăng ký'),
+            _infoRow(
+              Icons.people,
+              '$joinedCount/$totalMembers sinh viên đã đăng ký',
+            ),
             const SizedBox(height: 16),
 
             /// ===== RESPONSE UI =====
@@ -307,8 +297,7 @@ class _MemberEventListPageState extends State<MemberEventListPage> {
     );
   }
 
-  Widget _statusText(
-      IconData icon, Color color, String text) {
+  Widget _statusText(IconData icon, Color color, String text) {
     return Row(
       children: [
         Icon(icon, color: color),
@@ -316,8 +305,7 @@ class _MemberEventListPageState extends State<MemberEventListPage> {
         Expanded(
           child: Text(
             text,
-            style:
-                TextStyle(color: color, fontWeight: FontWeight.w600),
+            style: TextStyle(color: color, fontWeight: FontWeight.w600),
           ),
         ),
       ],
@@ -328,11 +316,7 @@ class _MemberEventListPageState extends State<MemberEventListPage> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
-        children: [
-          Icon(icon, size: 16),
-          const SizedBox(width: 6),
-          Text(text),
-        ],
+        children: [Icon(icon, size: 16), const SizedBox(width: 6), Text(text)],
       ),
     );
   }
@@ -345,13 +329,11 @@ class _MemberEventListPageState extends State<MemberEventListPage> {
     required IconData icon,
   }) {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: isActive ? color.withOpacity(0.15) : Colors.grey[100],
         borderRadius: BorderRadius.circular(12),
-        border:
-            Border.all(color: isActive ? color : Colors.grey[300]!),
+        border: Border.all(color: isActive ? color : Colors.grey[300]!),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -365,8 +347,7 @@ class _MemberEventListPageState extends State<MemberEventListPage> {
             backgroundColor: isActive ? color : Colors.grey,
             child: Text(
               '$count',
-              style: const TextStyle(
-                  color: Colors.white, fontSize: 12),
+              style: const TextStyle(color: Colors.white, fontSize: 12),
             ),
           ),
         ],
