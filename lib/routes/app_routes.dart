@@ -16,11 +16,13 @@ class AppRoutes {
   //Notification
   static const notification = '/notification';
 
-  // Auth + Dashboard
+  // Auth + Dashboard + resetpassword
   static const splash = '/splash';
   static const login = '/login';
   static const adminDashboard = '/admin-dashboard';
   static const memberDashboard = '/member-dashboard';
+  static const changePassword = '/change-password';
+
 
   // ================= EVENT MODULE =================
 

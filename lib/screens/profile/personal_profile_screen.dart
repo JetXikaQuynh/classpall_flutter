@@ -206,9 +206,16 @@ class _PersonalProfileScreenState extends State<PersonalProfileScreen> {
                   Navigator.pushNamed(context, AppRoutes.permission);
                 },
               ),
+            _buildMenuItem(
+              icon: Icons.lock,
+              text: "Đổi mật khẩu",
+              onTap: () {
+                Navigator.pushNamed(context, AppRoutes.changePassword);
+              },
+            ),
 
             const SizedBox(height: 30),
-
+            
             /// Logout
             SizedBox(
               width: 250,
