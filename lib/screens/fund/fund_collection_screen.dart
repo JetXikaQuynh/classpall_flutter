@@ -1,331 +1,235 @@
-import 'package:classpall_flutter/widgets/custom_bottom_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:classpall_flutter/routes/app_routes.dart';
-import 'package:classpall_flutter/screens/fund/add_income_dialog.dart';
 
-class FundCollection extends StatefulWidget {
-  const FundCollection({super.key});
+import '../../services/fund_services/fund_collection_service.dart';
+import '../../services/fund_services/fund_member_service.dart';
+import '../../services/fund_services/fund_expense_service.dart';
 
-  @override
-  State<FundCollection> createState() => _KhoanThuScreenState();
-}
+import '../../models/fund_models/fund_collection_model.dart';
+import '../../models/fund_models/fund_member_model.dart';
+import '../../models/fund_models/fund_expense_model.dart';
 
-class _KhoanThuScreenState extends State<FundCollection>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+import 'add_income_dialog.dart';
 
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this, initialIndex: 1);
-  }
+class FundCollectionScreen extends StatelessWidget {
+  FundCollectionScreen({super.key});
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  @override
-  void _showAddIncomeDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false, // bấm ngoài không tắt (tuỳ bạn)
-      builder: (_) => const AddIncomeDialog(),
-    );
-  }
-
+  final _collectionService = FundCollectionService();
+  final _memberService = FundMemberService();
+  final _expenseService = FundExpenseService();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          }
-        ),
-        title: const Text("Quản lý quỹ lớp"),
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: Colors.green,
-          unselectedLabelColor: Colors.grey,
-          indicatorColor: Colors.green,
-          onTap: (index) {
-            if (index == 0) {
-              Navigator.of(context, rootNavigator: true)
-                  .pushReplacementNamed(AppRoutes.fund);
-            } else if (index == 1) {
-              Navigator.of(context, rootNavigator: true)
-                  .pushReplacementNamed(AppRoutes.fundCollection);
-            } else if (index == 2) {
-              Navigator.of(context, rootNavigator: true)
-                  .pushReplacementNamed(AppRoutes.expense);
+    return StreamBuilder<List<FundCollection>>(
+      stream: _collectionService.getCollections(),
+      builder: (context, colSnap) {
+        if (!colSnap.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final collections = colSnap.data!;
+
+        return StreamBuilder<List<FundMember>>(
+          stream: _memberService.getAllMembers(),
+          builder: (context, memSnap) {
+            if (!memSnap.hasData) {
+              return const Center(child: CircularProgressIndicator());
             }
+
+            final members = memSnap.data!;
+
+            return StreamBuilder<List<FundExpense>>(
+              stream: _expenseService.getExpenses(),
+              builder: (context, expSnap) {
+                if (!expSnap.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final expenses = expSnap.data!;
+
+                /// ===== TÍNH TOÁN =====
+                final totalIncome = members
+                    .where((m) => m.paid)
+                    .fold<int>(0, (sum, m) => sum + m.amount);
+
+                final totalExpense = expenses
+                    .fold<int>(0, (sum, e) => sum + e.amount);
+
+                final balance = totalIncome - totalExpense;
+
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    children: [
+                      _summaryCard(
+                        icon: Icons.account_balance_wallet,
+                        title: 'Tổng quỹ hiện có',
+                        value: '$balance đ',
+                        color: Colors.blue,
+                      ),
+                      _summaryCard(
+                        icon: Icons.trending_up,
+                        title: 'Tổng thu (đã nộp)',
+                        value: '$totalIncome đ',
+                        color: Colors.green,
+                      ),
+                      _summaryCard(
+                        icon: Icons.trending_down,
+                        title: 'Tổng chi tiêu',
+                        value: '$totalExpense đ',
+                        color: Colors.red,
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      /// ===== NÚT TẠO KHOẢN THU =====
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.add),
+                          label: const Text('Tạo khoản thu'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF2F80ED),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (_) => const AddIncomeDialog(
+                                teamId: "team02",
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      /// ===== DANH SÁCH KHOẢN THU =====
+                      if (collections.isEmpty)
+                        const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Text(
+                            'Chưa có khoản thu nào',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ),
+
+                      ...collections.map(
+                            (c) => _collectionCard(c, members),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
           },
-          tabs: const [
-            Tab(text: "Tổng quan"),
-            Tab(text: "Khoản thu"),
-            Tab(text: "Sổ chi"),
-          ],
+        );
+      },
+    );
+  }
+
+  /// ================= CARD TỔNG QUAN =================
+  Widget _summaryCard({
+    required IconData icon,
+    required String title,
+    required String value,
+    required Color color,
+  }) {
+    return Card(
+      child: ListTile(
+        leading: Icon(icon, color: color),
+        title: Text(title),
+        trailing: Text(
+          value,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
         ),
       ),
-      body: SingleChildScrollView(
+    );
+  }
+
+  /// ================= CARD KHOẢN THU =================
+  Widget _collectionCard(
+      FundCollection collection,
+      List<FundMember> members,
+      ) {
+    final collectionMembers =
+    members.where((m) => m.collectionId == collection.id).toList();
+
+    return Card(
+      color: const Color(0xFFFFF3C4),
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSummaryCard(),
-            const SizedBox(height: 12),
-            _buildAddIncomeButton(context),
-            const SizedBox(height: 12),
-            _buildFundCard(
-              title: "Quỹ lớp học kỳ 1",
-              subtitle: "100.000đ/người",
-              total: "600.000đ",
-              members: membersHK1,
+            /// HEADER
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  collection.title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  '${collection.amountPerUser * collectionMembers.where((m) => m.paid).length}đ',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
-            _buildFundCard(
-              title: "Áo đồng phục lớp",
-              subtitle: "150.000đ/người",
-              total: "600.000đ",
-              members: membersUniform,
+            Text('${collection.amountPerUser}đ / người'),
+
+            const Divider(),
+
+            /// DANH SÁCH SINH VIÊN
+            ...collectionMembers.map(
+                  (m) => _memberItem(m),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: const CustomBottomBar(
-        currentIndex: 0,
-      ),
     );
   }
 
-  // ================= SUMMARY =================
-
-  Widget _buildSummaryCard() {
+  /// ================= ITEM SINH VIÊN =================
+  Widget _memberItem(FundMember m) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        children: const [
-          SummaryRow(
-            icon: Icons.account_balance_wallet,
-            title: "Tổng quỹ hiện có",
-            value: "680.000đ",
-            color: Colors.blue,
-          ),
-          Divider(),
-          SummaryRow(
-            icon: Icons.check_circle,
-            title: "Tổng thu (Đã nộp)",
-            value: "1.200.000đ",
-            color: Colors.green,
-          ),
-          Divider(),
-          SummaryRow(
-            icon: Icons.shopping_cart,
-            title: "Tổng chi tiêu",
-            value: "520.000đ",
-            color: Colors.red,
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ================= Add Fund ================
-  Widget _buildAddIncomeButton(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: ElevatedButton.icon(
-        onPressed: () {
-          _showAddIncomeDialog(context);
-        },
-        icon: const Icon(Icons.add),
-        label: const Text("Tạo khoản thu"),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.blue,
-          foregroundColor: Colors.white,
-        ),
-      ),
-    );
-  }
-
-  // ================= FUND CARD =================
-
-  Widget _buildFundCard({
-    required String title,
-    required String subtitle,
-    required String total,
-    required List<Member> members,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title,
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold)),
-                  Text(subtitle,
-                      style: const TextStyle(color: Colors.grey)),
-                ],
-              ),
-              Text(
-                total,
-                style: const TextStyle(
-                    fontWeight: FontWeight.bold, color: Colors.orange),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-
-          // Search
-          TextField(
-            decoration: InputDecoration(
-              hintText: "Tìm kiếm sinh viên...",
-              prefixIcon: const Icon(Icons.search),
-              filled: true,
-              fillColor: const Color(0xFFF3F4F6),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide.none,
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 8),
-
-          // MEMBER LIST (SCROLL)
-          SizedBox(
-            height: 240,
-            child: Scrollbar(
-              thumbVisibility: true,
-              child: ListView.separated(
-                itemCount: members.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 6),
-                itemBuilder: (context, index) {
-                  return _buildMemberRow(members[index]);
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ================= MEMBER ROW =================
-
-  Widget _buildMemberRow(Member member) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: member.paid
-            ? const Color(0xFFE8F5E9)
-            : const Color(0xFFFFEBEE),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(member.name),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: member.paid ? Colors.green : Colors.red,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              member.paid ? "Đã nộp" : "Chưa nộp",
-              style: const TextStyle(color: Colors.white, fontSize: 12),
+          Text(m.userName),
+          GestureDetector(
+            onTap: m.paid
+                ? null
+                : () => _memberService.markAsPaid(m.id),
+            child: Container(
+              padding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: m.paid ? Colors.green : Colors.red,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                m.paid ? 'Đã nộp' : 'Chưa nộp',
+                style: const TextStyle(color: Colors.white),
+              ),
             ),
           ),
         ],
       ),
-    );
-  }
-}
-
-// ================= DATA =================
-
-const membersHK1 = [
-  Member(name: "Nguyễn Văn An", paid: true),
-  Member(name: "Trần Thị Bích", paid: true),
-  Member(name: "Lê Hoàng Cường", paid: false),
-  Member(name: "Phạm Minh Duy", paid: false),
-  Member(name: "Hoàng Thị Minh", paid: true),
-  Member(name: "Ngô Quang Huy", paid: true),
-  Member(name: "Đặng Thu Hà", paid: false),
-  Member(name: "Vũ Đức Long", paid: true),
-  Member(name: "Phan Thảo My", paid: false),
-  Member(name: "Bùi Anh Tuấn", paid: true),
-];
-
-const membersUniform = [
-  Member(name: "Lê Hoàng Cường", paid: false),
-  Member(name: "Phạm Minh Duy", paid: false),
-  Member(name: "Hoàng Thị Minh", paid: true),
-  Member(name: "Nguyễn Văn An", paid: true),
-  Member(name: "Trần Thị Bích", paid: true),
-  Member(name: "Ngô Quang Huy", paid: false),
-  Member(name: "Đặng Thu Hà", paid: true),
-  Member(name: "Vũ Đức Long", paid: false),
-  Member(name: "Phan Thảo My", paid: false),
-  Member(name: "Bùi Anh Tuấn", paid: true),
-];
-
-// ================= MODELS =================
-
-class Member {
-  final String name;
-  final bool paid;
-
-  const Member({required this.name, required this.paid});
-}
-
-class SummaryRow extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String value;
-  final Color color;
-
-  const SummaryRow({
-    super.key,
-    required this.icon,
-    required this.title,
-    required this.value,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, color: color),
-        const SizedBox(width: 10),
-        Expanded(child: Text(title)),
-        Text(
-          value,
-          style: TextStyle(fontWeight: FontWeight.bold, color: color),
-        ),
-      ],
     );
   }
 }
