@@ -17,6 +17,7 @@ class DutyAssignmentModel {
     required this.year,
   });
 
+  //dùng để chuyển từ firestore về model
   factory DutyAssignmentModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return DutyAssignmentModel(
@@ -28,7 +29,7 @@ class DutyAssignmentModel {
       year: data['year'],
     );
   }
-
+  //dùng để chuyển từ model về firestore
   Map<String, dynamic> toMap() {
     return {
       'id_duty': dutyId,

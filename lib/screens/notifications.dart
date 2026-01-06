@@ -16,9 +16,7 @@ class NotificationsScreen extends StatelessWidget {
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
-      return const Scaffold(
-        body: Center(child: Text('Chưa đăng nhập')),
-      );
+      return const Scaffold(body: Center(child: Text('Chưa đăng nhập')));
     }
 
     return Scaffold(
@@ -36,10 +34,8 @@ class NotificationsScreen extends StatelessWidget {
       ),
 
       body: StreamBuilder<QuerySnapshot>(
-        stream: NotificationService.instance
-            .listenMyNotifications(user.uid),
+        stream: NotificationService.instance.listenMyNotifications(user.uid),
         builder: (context, snapshot) {
-
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -52,8 +48,7 @@ class NotificationsScreen extends StatelessWidget {
               .map((e) => NotificationModel.fromDoc(e))
               .toList();
 
-          final unreadCount =
-              notifications.where((n) => !n.isRead).length;
+          final unreadCount = notifications.where((n) => !n.isRead).length;
 
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -65,10 +60,7 @@ class NotificationsScreen extends StatelessWidget {
                   const SizedBox(width: 8),
                   Text(
                     '$unreadCount thông báo chưa đọc',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.black54,
-                    ),
+                    style: const TextStyle(fontSize: 14, color: Colors.black54),
                   ),
                 ],
               ),
@@ -86,12 +78,23 @@ class NotificationsScreen extends StatelessWidget {
                   onTap: () async {
                     await NotificationService.instance.markAsRead(n.id);
 
-                    if (n.type == 'event' || n.type == 'reminder') {
-                      Navigator.pushNamed(
-                        context,
-                        AppRoutes.memberEventList,
-                        arguments: n.targetId,
-                      );
+                    switch (n.type) {
+                      case 'event':
+                      case 'reminder':
+                        Navigator.pushNamed(
+                          context,
+                          AppRoutes.memberEventList,
+                          arguments: n.targetId,
+                        );
+                        break;
+
+                      case 'duty':
+                        Navigator.pushNamed(
+                          context,
+                          AppRoutes.dutyDetail,
+                          arguments: n.targetId,
+                        );
+                        break;
                     }
                   },
                 );

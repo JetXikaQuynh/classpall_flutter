@@ -227,6 +227,14 @@ class _DutyDetailScreenState extends State<DutyDetailScreen> {
               status: "Hiện tại",
               isCurrent: true,
             ),
+
+            const Text(
+              "Lưu ý: Tổ trưởng chỉ có thể bấm 'Đã hoàn thành' vào cuối tuần",
+              style: TextStyle(
+                fontSize: 12,
+                color: Color.fromARGB(255, 0, 106, 255),
+              ),
+            ),
           ],
         ),
       ),

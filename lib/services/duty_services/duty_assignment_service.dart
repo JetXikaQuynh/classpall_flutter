@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/duty_models/duty_assignment_model.dart';
 import '../../utils/date_utils.dart';
 
+//service dùng để thao tác lấy, tạo, cập nhật, xóa dữ liệu của collection trong firestore
 class DutyAssignmentService {
   final _assignmentRef = FirebaseFirestore.instance.collection(
     'duty_assignments',
