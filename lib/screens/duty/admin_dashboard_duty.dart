@@ -13,6 +13,7 @@ import '../../widgets/duty/leaderboard_card.dart';
 import '../../widgets/duty/duty_item.dart';
 import '../../../widgets/custom_bottom_bar.dart';
 import '../../routes/app_routes.dart';
+import '../../utils/date_utils.dart';
 
 class AdminDashboardDuty extends StatefulWidget {
   const AdminDashboardDuty({super.key});
@@ -38,7 +39,7 @@ class _AdminDashboardDutyState extends State<AdminDashboardDuty> {
   void initState() {
     super.initState();
     _loadStaticData();
-    _assignmentService.autoMarkLateAssignments();
+    // _assignmentService.autoMarkLateAssignments();
   }
 
   /// 🔥 load duties + teams 1 lần
