@@ -34,8 +34,7 @@ class NotificationService {
         .snapshots();
   }
 
-
-///New event
+  ///New event
   Future<void> notifyNewEvent({
     required String eventId,
     required String eventTitle,
@@ -53,6 +52,31 @@ class NotificationService {
         'sent_at': Timestamp.now(),
       });
     }
+  }
+
+  /// Gửi thông báo cho cả tổ khi có nhiệm vụ mới
+  Future<void> notifyNewDutyByTeam({
+    required String dutyId,
+    required String dutyTitle,
+    required List<String> memberIds,
+    required String teamName,
+  }) async {
+    final batch = _db.batch();
+
+    for (final uid in memberIds) {
+      final notifRef = _db.collection('notifications').doc();
+      batch.set(notifRef, {
+        'user_id': uid,
+        'title': 'Nhiệm vụ mới cho $teamName',
+        'body': 'Tổ của bạn có nhiệm vụ mới: $dutyTitle',
+        'type': 'duty',
+        'target_id': dutyId,
+        'is_read': false,
+        'sent_at': Timestamp.now(),
+      });
+    }
+
+    await batch.commit();
   }
 
   /// MARK READ

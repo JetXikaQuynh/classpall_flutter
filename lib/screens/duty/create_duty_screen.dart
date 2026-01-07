@@ -8,6 +8,8 @@ import '../../models/duty_models/team_model.dart';
 import '../../services/duty_services/duty_service.dart';
 import '../../services/duty_services/duty_assignment_service.dart';
 import '../../services/duty_services/team_service.dart';
+import '../../services/notification_service.dart';
+import '../../utils/date_utils.dart';
 
 class CreateDutyScreen extends StatefulWidget {
   const CreateDutyScreen({super.key});
@@ -275,9 +277,8 @@ class _CreateDutyScreenState extends State<CreateDutyScreen> {
     }
 
     final now = DateTime.now();
-    final week = int.parse(
-      "${now.difference(DateTime(now.year, 1, 1)).inDays ~/ 7 + 1}",
-    );
+    final week = getCurrentWeekNumber();
+    final year = now.year;
 
     /// TẠO DUTY
     final dutyRef = await FirebaseFirestore.instance.collection('duties').add({
@@ -287,6 +288,13 @@ class _CreateDutyScreenState extends State<CreateDutyScreen> {
       'points': int.parse(pointController.text),
       'start_team_id': selectedTeam!.id,
     });
+
+    await NotificationService.instance.notifyNewDutyByTeam(
+      dutyId: dutyRef.id,
+      dutyTitle: nameController.text,
+      memberIds: selectedTeam!.userIds,
+      teamName: selectedTeam!.name,
+    );
 
     /// 2️⃣ TẠO ASSIGNMENT
     await _assignmentService.createAssignment(
@@ -300,6 +308,6 @@ class _CreateDutyScreenState extends State<CreateDutyScreen> {
       ),
     );
 
-    Navigator.pop(context);
+    if (mounted) Navigator.pop(context);
   }
 }

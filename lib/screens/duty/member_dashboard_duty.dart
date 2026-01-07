@@ -46,7 +46,7 @@ class _MemberDashboardDutyState extends State<MemberDashboardDuty> {
   void initState() {
     super.initState();
     _loadUserAndStaticData();
-    _assignmentService.autoMarkLateAssignments();
+    // _assignmentService.autoMarkLateAssignments();
   }
 
   /// 🔥 Load user + teams + duties

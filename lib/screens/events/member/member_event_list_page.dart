@@ -184,6 +184,7 @@ class _MemberEventListPageState extends State<MemberEventListPage> {
     required int joinedCount,
     required int totalMembers,
   }) {
+    final bool isExpired = DateTime.now().isAfter(event.eventDate);
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -240,13 +241,18 @@ class _MemberEventListPageState extends State<MemberEventListPage> {
             const SizedBox(height: 16),
 
             /// ===== RESPONSE UI =====
-            if (status == 'pending') _buildActionButtons(event),
+            if (status == 'pending' && !isExpired) _buildActionButtons(event),
+
+            if (status == 'pending' && isExpired)
+              _statusText(Icons.lock_clock, Colors.grey, 'Đã quá hạn đăng ký'),
+
             if (status == 'joined')
               _statusText(
                 Icons.check_circle,
                 Colors.green,
                 'Bạn đã tham gia sự kiện này',
               ),
+
             if (status == 'declined')
               _statusText(
                 Icons.cancel,
