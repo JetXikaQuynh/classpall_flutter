@@ -7,6 +7,7 @@ import 'confirm_borrow_dialog.dart';
 import 'confirm_return_dialog.dart';
 import 'asset_history_screen.dart';
 import 'package:classpall_flutter/widgets/custom_bottom_bar.dart';
+import '/services/user_service.dart';
 
 class AssetsScreen extends StatefulWidget {
   const AssetsScreen({super.key});
@@ -22,7 +23,26 @@ class _AssetsScreenState extends State<AssetsScreen> {
   bool expandTotal = false;
   bool expandAvailable = false;
   bool expandBorrowed = false;
+  bool isLeader = false;
   String searchText = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserRole();
+  }
+
+  Future<void> _loadUserRole() async {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final user = await UserService().getUserById(uid);
+
+    if (mounted) {
+      setState(() {
+        isLeader = user?.isLeader == true;
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -55,26 +75,27 @@ class _AssetsScreenState extends State<AssetsScreen> {
             padding: const EdgeInsets.all(12),
             child: Column(
               children: [
-                SizedBox(
-                  width: double.infinity,
-                  height: 44,
-                  child: ElevatedButton.icon(
-                    icon: const Icon(Icons.add),
-                    label: const Text('Thêm tài sản'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2F80ED),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                if (isLeader)
+                  SizedBox(
+                    width: double.infinity,
+                    height: 44,
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.add),
+                      label: const Text('Thêm tài sản'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF2F80ED),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (_) => const AddAssetDialog(),
+                        );
+                      },
                     ),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (_) => const AddAssetDialog(),
-                      );
-                    },
                   ),
-                ),
                 const SizedBox(height: 10),
                 TextField(
                   onChanged: (value){
@@ -300,10 +321,11 @@ class _AssetsScreenState extends State<AssetsScreen> {
               ),
             ),
           const SizedBox(width: 8),
-          GestureDetector(
-            onTap: () => deleteAsset(context, asset),
-            child: const Icon(Icons.delete_outline, color: Colors.grey),
-          ),
+          if (isLeader)
+            GestureDetector(
+              onTap: () => deleteAsset(context, asset),
+              child: const Icon(Icons.delete_outline, color: Colors.grey),
+            ),
         ],
       ),
     );

@@ -50,7 +50,9 @@ class AssetService {
 
     await _assetRef.doc(assetId).update({
       'status': 'borrowed',
-      'borrowedBy': userName,
+      'borrowedById': uid,
+      'borrowedByName': userName,
+      'borrowedAt': Timestamp.now(),
     });
 
     await _historyRef.add({
@@ -76,7 +78,9 @@ class AssetService {
 
     await _assetRef.doc(assetId).update({
       'status': 'available',
-      'borrowedBy': null,
+      'borrowedById': null,
+      'borrowedByName': null,
+      'borrowedAt': null,
     });
 
     await _historyRef.add({
