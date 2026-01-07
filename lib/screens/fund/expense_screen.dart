@@ -5,11 +5,11 @@ import '../../models/fund_models/fund_expense_model.dart';
 import 'add_expense_dialog.dart';
 
 class ExpenseScreen extends StatelessWidget {
-  final bool isLeader;
+  final bool role;
 
   const ExpenseScreen({
     super.key,
-    required this.isLeader,
+    required this.role,
   });
 
   @override
@@ -66,7 +66,7 @@ class ExpenseScreen extends StatelessWidget {
         const SizedBox(height: 12),
 
         // ===== BUTTON GHI KHOẢN CHI =====
-        if (isLeader)
+        if (role)
         Align(
           alignment: Alignment.centerRight,
           child: ElevatedButton.icon(
