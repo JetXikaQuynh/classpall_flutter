@@ -23,7 +23,7 @@ class _AssetsScreenState extends State<AssetsScreen> {
   bool expandTotal = false;
   bool expandAvailable = false;
   bool expandBorrowed = false;
-  bool isLeader = false;
+  bool role = false;
   String searchText = '';
 
   @override
@@ -38,7 +38,7 @@ class _AssetsScreenState extends State<AssetsScreen> {
 
     if (mounted) {
       setState(() {
-        isLeader = user?.isLeader == true;
+        role = user?.role == true;
       });
     }
   }
@@ -75,7 +75,7 @@ class _AssetsScreenState extends State<AssetsScreen> {
             padding: const EdgeInsets.all(12),
             child: Column(
               children: [
-                if (isLeader)
+                if (role)
                   SizedBox(
                     width: double.infinity,
                     height: 44,
@@ -321,7 +321,7 @@ class _AssetsScreenState extends State<AssetsScreen> {
               ),
             ),
           const SizedBox(width: 8),
-          if (isLeader)
+          if (role)
             GestureDetector(
               onTap: () => deleteAsset(context, asset),
               child: const Icon(Icons.delete_outline, color: Colors.grey),
