@@ -27,7 +27,7 @@ class _FundScreenState extends State<FundScreen>
   final _memberService = FundMemberService();
   final _expenseService = FundExpenseService();
   final _collectionService = FundCollectionService();
-  bool isLeader = false;
+  bool role = false;
 
   @override
   void initState() {
@@ -42,7 +42,7 @@ class _FundScreenState extends State<FundScreen>
 
     if (mounted) {
       setState(() {
-        isLeader = user?.isLeader == true;
+        role = user?.role == true;
       });
     }
   }
@@ -75,8 +75,8 @@ class _FundScreenState extends State<FundScreen>
         controller: _tabController,
         children: [
           _overviewTab(),
-          collection_screen.FundCollectionScreen(isLeader: isLeader),
-          ExpenseScreen(isLeader: isLeader),
+          collection_screen.FundCollectionScreen(role: role),
+          ExpenseScreen(role: role),
         ],
       ),
       bottomNavigationBar: const CustomBottomBar(

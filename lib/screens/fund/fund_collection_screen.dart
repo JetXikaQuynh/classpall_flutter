@@ -11,11 +11,11 @@ import '../../models/fund_models/fund_expense_model.dart';
 import 'add_income_dialog.dart';
 
 class FundCollectionScreen extends StatelessWidget {
-  final bool isLeader;
+  final bool role;
 
   FundCollectionScreen({
     super.key,
-    required this.isLeader,
+    required this.role,
   });
 
   final _collectionService = FundCollectionService();
@@ -87,7 +87,7 @@ class FundCollectionScreen extends StatelessWidget {
                       const SizedBox(height: 12),
 
                       /// ===== NÚT TẠO KHOẢN THU =====
-                      if (isLeader)
+                      if (role)
                         Align(
                           alignment: Alignment.centerRight,
                           child: ElevatedButton.icon(
@@ -218,7 +218,7 @@ class FundCollectionScreen extends StatelessWidget {
         children: [
           Text(m.userName),
           GestureDetector(
-            onTap: (!isLeader || m.paid)
+            onTap: (!role || m.paid)
                 ? null
                 : () => _memberService.markAsPaid(m.id),
             child: Container(
