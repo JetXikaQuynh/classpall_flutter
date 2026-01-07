@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../services/fund_services/fund_member_service.dart';
 import '../../services/fund_services/fund_expense_service.dart';
 import '../../services/fund_services/fund_collection_service.dart';
 import '../../models/fund_models/fund_member_model.dart';
 import '../../models/fund_models/fund_expense_model.dart';
 import '../../models/fund_models/fund_collection_model.dart';
-
+import '/services/user_service.dart';
+import '/widgets/custom_bottom_bar.dart';
 // 2 màn hình tab riêng
 // Alias để tránh trùng tên với model FundCollection
 import 'fund_collection_screen.dart' as collection_screen;
@@ -26,11 +27,24 @@ class _FundScreenState extends State<FundScreen>
   final _memberService = FundMemberService();
   final _expenseService = FundExpenseService();
   final _collectionService = FundCollectionService();
+  bool isLeader = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _loadUserRole();
+  }
+
+  Future<void> _loadUserRole() async {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final user = await UserService().getUserById(uid);
+
+    if (mounted) {
+      setState(() {
+        isLeader = user?.isLeader == true;
+      });
+    }
   }
 
   @override
@@ -61,9 +75,12 @@ class _FundScreenState extends State<FundScreen>
         controller: _tabController,
         children: [
           _overviewTab(),
-          collection_screen.FundCollectionScreen(),
-          const ExpenseScreen(),
+          collection_screen.FundCollectionScreen(isLeader: isLeader),
+          ExpenseScreen(isLeader: isLeader),
         ],
+      ),
+      bottomNavigationBar: const CustomBottomBar(
+        currentIndex: 0,
       ),
     );
   }

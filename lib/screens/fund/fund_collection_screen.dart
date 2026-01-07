@@ -11,7 +11,12 @@ import '../../models/fund_models/fund_expense_model.dart';
 import 'add_income_dialog.dart';
 
 class FundCollectionScreen extends StatelessWidget {
-  FundCollectionScreen({super.key});
+  final bool isLeader;
+
+  FundCollectionScreen({
+    super.key,
+    required this.isLeader,
+  });
 
   final _collectionService = FundCollectionService();
   final _memberService = FundMemberService();
@@ -82,27 +87,28 @@ class FundCollectionScreen extends StatelessWidget {
                       const SizedBox(height: 12),
 
                       /// ===== NÚT TẠO KHOẢN THU =====
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: ElevatedButton.icon(
-                          icon: const Icon(Icons.add),
-                          label: const Text('Tạo khoản thu'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF2F80ED),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (_) => const AddIncomeDialog(
-                                teamId: "team02",
+                      if (isLeader)
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: ElevatedButton.icon(
+                            icon: const Icon(Icons.add),
+                            label: const Text('Tạo khoản thu'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF2F80ED),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                            );
-                          },
+                            ),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (_) => const AddIncomeDialog(
+                                  teamId: "team02",
+                                ),
+                              );
+                            },
+                          ),
                         ),
-                      ),
 
                       const SizedBox(height: 12),
 
@@ -212,7 +218,7 @@ class FundCollectionScreen extends StatelessWidget {
         children: [
           Text(m.userName),
           GestureDetector(
-            onTap: m.paid
+            onTap: (!isLeader || m.paid)
                 ? null
                 : () => _memberService.markAsPaid(m.id),
             child: Container(
