@@ -74,8 +74,8 @@ class AppPages {
     AppRoutes.memberEventList: (_) => const MemberEventListPage(),
     // =========== Fund ==============
     AppRoutes.fund: (_) => const FundScreen(),
-    AppRoutes.fundCollection: (_) => FundCollectionScreen(),
-    AppRoutes.expense: (_) => const ExpenseScreen(),
+    AppRoutes.fundCollection: (_) => FundCollectionScreen(isLeader: true),
+    AppRoutes.expense: (_) => const ExpenseScreen(isLeader: true),
 
     //Notification
     AppRoutes.notification: (_) => const NotificationsScreen(),

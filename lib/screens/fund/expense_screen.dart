@@ -5,7 +5,12 @@ import '../../models/fund_models/fund_expense_model.dart';
 import 'add_expense_dialog.dart';
 
 class ExpenseScreen extends StatelessWidget {
-  const ExpenseScreen({super.key});
+  final bool isLeader;
+
+  const ExpenseScreen({
+    super.key,
+    required this.isLeader,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +66,7 @@ class ExpenseScreen extends StatelessWidget {
         const SizedBox(height: 12),
 
         // ===== BUTTON GHI KHOẢN CHI =====
+        if (isLeader)
         Align(
           alignment: Alignment.centerRight,
           child: ElevatedButton.icon(
@@ -127,24 +133,11 @@ class ExpenseScreen extends StatelessWidget {
                   }
 
                   return Column(
-                    children: expenses.map((e) {
-                      return Column(
-                        children: [
-                          ListTile(
-                            title: Text(e.title),
-                            subtitle: Text(e.note),
-                            trailing: Text(
-                              '- ${e.amount} đ',
-                              style: const TextStyle(
-                                color: Colors.red,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          const Divider(),
-                        ],
-                      );
-                    }).toList(),
+                    children: [
+                      _expenseTableHeader(),
+                      const Divider(),
+                      ...expenses.map((e) => _expenseRow(e)),
+                    ],
                   );
                 },
               ),
@@ -176,4 +169,81 @@ class ExpenseScreen extends StatelessWidget {
       ),
     );
   }
+
+  Widget _expenseRow(FundExpense e) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          // NGÀY
+          SizedBox(
+            width: 80,
+            child: Text(
+              '${e.createdAt.day}/${e.createdAt.month}/${e.createdAt.year}',
+              style: const TextStyle(fontSize: 12),
+            ),
+          ),
+
+          // NỘI DUNG
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(e.title, style: const TextStyle(fontSize: 13)),
+                if (e.note.isNotEmpty)
+                  Text(
+                    e.note,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Colors.black54,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+
+          // SỐ TIỀN
+          SizedBox(
+            width: 80,
+            child: Text(
+              '- ${e.amount} đ',
+              style: const TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+
+          // ICON ẢNH (sau này gắn Firebase Storage)
+          const SizedBox(
+            width: 40,
+            child: Icon(Icons.image, size: 18),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _expenseTableHeader() {
+    return Row(
+      children: const [
+        SizedBox(
+          width: 80,
+          child: Text('Ngày', style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
+        Expanded(
+          child: Text('Nội dung', style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
+        SizedBox(
+          width: 80,
+          child: Text('Số tiền', style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
+        SizedBox(
+          width: 40,
+          child: Icon(Icons.image, size: 18),
+        ),
+      ],
+    );
+  }
+
 }
